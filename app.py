@@ -1,111 +1,139 @@
-from flask import Flask, render_template, request, jsonify, session
-import anthropic
 import os
+import markdown
+import anthropic
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify
+from PyPDF2 import PdfReader
+from pinecone import Pinecone, ServerlessSpec
+from sentence_transformers import SentenceTransformer
 
 app = Flask(__name__)
-app.secret_key = "your-secret-key-here"  # Session-д ашиглана
+load_dotenv()
+# API keys
+# API keys - No longer hardcoded
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
+PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
+INDEX_NAME    = "muis-chatbot"
 
-# Anthropic client
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+# Safety check: Ensure keys are loaded
+if not ANTHROPIC_KEY or not PINECONE_KEY:
+    raise ValueError("API keys not found. Check your .env file!")
+# Clients
+claude   = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+pc       = Pinecone(api_key=PINECONE_KEY)
+embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-# =============================================
-# ИХ СУРГУУЛИЙН МЭДЭЭЛЭЛ - энд өөрчлөөрэй
-# =============================================
-UNIVERSITY_SYSTEM_PROMPT = """
-Та Монголын Улсын Их Сургуулийн ухаалаг туслах chatbot юм.
-Монгол болон Англи хэлээр хариулж чадна. Хэрэглэгч ямар хэлээр асуувал тэр хэлээр хариулна.
-Хариултаа товч, тодорхой, найрсаг байлга.
+if INDEX_NAME not in [i.name for i in pc.list_indexes()]:
+    pc.create_index(
+        name=INDEX_NAME,
+        dimension=384,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+    )
+index = pc.Index(INDEX_NAME)
 
-## СУРГУУЛИЙН МЭДЭЭЛЭЛ:
+# -------------------------------------------------------
+# Helpers
+# -------------------------------------------------------
+CHUNK_SIZE = 500
 
-### Элсэлт
-- Элсэлтийн шалгалт: Жил бүр 6-р сарын 1-30
-- Шаардлага: ЭЕШ-ын 500+ оноо
-- Бүртгэл: www.elshilt.mn сайтаар
-- Холбоо барих: elshilt@university.mn | 7700-1234
+def chunk_text(text: str) -> list:
+    words = text.split()
+    chunks, current, length = [], [], 0
+    for word in words:
+        current.append(word)
+        length += len(word) + 1
+        if length >= CHUNK_SIZE:
+            chunks.append(" ".join(current))
+            current, length = [], 0
+    if current:
+        chunks.append(" ".join(current))
+    return chunks
 
-### Сургалтын төлбөр
-- Бакалавр: 2,500,000₮ / жилд
-- Магистр: 3,200,000₮ / жилд
-- Доктор: 4,000,000₮ / жилд
-- Тэтгэлэг: Шилдэг 10% оюутанд 50% хөнгөлөлт
+def index_pdfs(pdf_files) -> int:
+    all_chunks = []
+    for pdf in pdf_files:
+        reader = PdfReader(pdf)
+        text = "".join(page.extract_text() or "" for page in reader.pages)
+        all_chunks.extend(chunk_text(text))
+    if not all_chunks:
+        return 0
+    index.delete(delete_all=True)
+    vectors = []
+    for i, chunk in enumerate(all_chunks):
+        embedding = embedder.encode(chunk).tolist()
+        vectors.append({"id": f"chunk-{i}", "values": embedding, "metadata": {"text": chunk}})
+    for i in range(0, len(vectors), 100):
+        index.upsert(vectors=vectors[i:i+100])
+    return len(all_chunks)
 
-### Сургуулийн цаг
-- Даваа-Баасан: 08:00 - 20:00
-- Бямба: 09:00 - 15:00
-- Ням: амарна
+def search_context(query: str, top_k: int = 5) -> str:
+    query_embedding = embedder.encode(query).tolist()
+    results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
+    chunks = [m["metadata"]["text"] for m in results["matches"]]
+    return "\n\n".join(chunks)
 
-### Факультетүүд
-- Бизнес ба Эдийн засгийн факультет
-- Мэдээллийн технологийн факультет
-- Хууль зүйн факультет
-- Анагаах ухааны факультет
-- Инженерийн факультет
+def build_system_prompt(context: str) -> str:
+    if not context:
+        return """Та МУИС-ийн оюутнуудад туслах чатбот юм.
+Одоогоор ямар ч баримт бичиг хуулаагүй байна.
+Хэрэглэгчид PDF файл хуулахыг хүсч байгааг мэдэгдэнэ үү.
+Монгол хэлээр хариулна уу."""
 
-### Байршил
-- Хаяг: Улаанбаатар хот, Сүхбаатар дүүрэг, Их Сургуулийн гудамж 1
-- Утас: 7700-0000
-- Имэйл: info@university.mn
+    return f"""Та МУИС-ийн оюутнуудад туслах чатбот юм.
 
-### Номын сан
-- Цагийн хуваарь: Да-Ба 08:00-21:00, Бя 09:00-17:00
-- Онлайн эх сурвалж: library.university.mn
+ДҮРЭМ:
+- Зөвхөн доор өгсөн баримт бичгийн мэдээлэлд тулгуурлан хариулна
+- Баримт бичигт байхгүй мэдээллийг өөрөөс нэмж хэлэхгүй
+- Хэрэв баримт бичигт хариулт байхгүй бол: "Уучлаарай, энэ мэдээлэл баримт бичигт байхгүй байна." гэж хэлнэ
+- Монгол хэлээр хариулна уу
 
-Хэрэв мэдэхгүй зүйл асуувал: "Энэ талаар дэлгэрэнгүй мэдээллийг 7700-0000 утсаар авна уу" гэж хэлнэ.
-"""
+БАРИМТ БИЧИГ:
+{context}"""
 
+# -------------------------------------------------------
+# Routes
+# -------------------------------------------------------
 @app.route("/")
-def index():
-    # Шинэ хэрэглэгч ирвэл түүхийг цэвэрлэнэ
-    session["history"] = []
+def index_route():
     return render_template("index.html")
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    user_message = data.get("message", "").strip()
-
-    if not user_message:
-        return jsonify({"error": "Хоосон мессеж"}), 400
-
-    # Харилцааны түүхийг session-д хадгална
-    if "history" not in session:
-        session["history"] = []
-
-    # Хэрэглэгчийн мессежийг нэмнэ
-    session["history"].append({
-        "role": "user",
-        "content": user_message
-    })
-
+@app.route("/upload", methods=["POST"])
+def upload():
+    if "file" not in request.files:
+        return jsonify({"error": "Файл олдсонгүй"}), 400
+    files = request.files.getlist("file")
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1000,
-            system=UNIVERSITY_SYSTEM_PROMPT,
-            messages=session["history"]
-        )
-
-        assistant_reply = response.content[0].text
-
-        # Chatbot хариуг түүхэнд нэмнэ
-        session["history"].append({
-            "role": "assistant",
-            "content": assistant_reply
-        })
-
-        # Session-г шинэчлэх
-        session.modified = True
-
-        return jsonify({"reply": assistant_reply})
-
+        count = index_pdfs(files)
+        return jsonify({"chunks": count, "success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/reset", methods=["POST"])
-def reset():
-    session["history"] = []
-    return jsonify({"status": "ok"})
+@app.route("/chat", methods=["POST"])
+def chat():
+    data         = request.json
+    user_message = data.get("message", "")
+    history      = data.get("history", [])
+    has_index    = data.get("has_index", False)
+
+    try:
+        context = search_context(user_message) if has_index else ""
+        messages = []
+        for msg in history[-6:]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        messages.append({"role": "user", "content": user_message})
+
+        response = claude.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            system=build_system_prompt(context),
+            messages=messages,
+        )
+        raw_text  = response.content[0].text
+        html_text = markdown.markdown(raw_text)
+        return jsonify({"answer": html_text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
