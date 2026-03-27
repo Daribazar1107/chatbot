@@ -1,0 +1,366 @@
+[
+  {
+    "ner": "Б.Батням",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "bbatnyam@num.edu.mn"
+  },
+  {
+    "ner": "Э.Билгүүн",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "bilguun.e@num.edu.mn, info_site@num.edu.mn"
+  },
+  {
+    "ner": "А.Баатарбилэг",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "a_bbileg@num.edu.mn, mta@num.edu.mn, digital_transform@num.edu.mn"
+  },
+  {
+    "ner": "Ц.Хүрэл-Oчир",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "khurel-ochir@num.edu.mn"
+  },
+  {
+    "ner": "Ч.Алтангэрэл",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "altangerel@num.edu.mn"
+  },
+  {
+    "ner": "Г.Сарнай",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "sarnai.g@num.edu.mn"
+  },
+  {
+    "ner": "Э.Авирмэд",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "avirmed.e@num.edu.mn"
+  },
+  {
+    "ner": "К.Есенбек",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "esenbek@num.edu.mn"
+  },
+  {
+    "ner": "Г.Амарсанаа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "amarsanaag@num.edu.mn"
+  },
+  {
+    "ner": "Н.Даваасүрэн",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "davaasuren.n@num.edu.mn"
+  },
+  {
+    "ner": "Э.Цэцэгжаргал",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "tsetsegjargal.e@num.edu.mn"
+  },
+  {
+    "ner": "Р.Жавхлан",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "r.javkhlan@num.edu.mn"
+  },
+  {
+    "ner": "Т.Цэрэннадмид",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "tserennadmid@num.edu.mn"
+  },
+  {
+    "ner": "Х.Оюундолгор",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "okhorloo@num.edu.mn"
+  },
+  {
+    "ner": "Д.Гармаа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "garmaa@num.edu.mn"
+  },
+  {
+    "ner": "Г.Багаболд",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "bagabold.g@num.edu.mn"
+  },
+  {
+    "ner": "П.Пүрэвханд",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "purevkhand.p@num.edu.mn"
+  },
+  {
+    "ner": "А.Мөнхзул",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "munkhzul.a@num.edu.mn"
+  },
+  {
+    "ner": "Б.Наранбат",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "naranbat@num.edu.mn"
+  },
+  {
+    "ner": "Ц.Энхтуяа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "enkhtuya.ts@num.edu.mn"
+  },
+  {
+    "ner": "Д.Тэмүүжин",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "temuujin.d@num.edu.mn"
+  },
+  {
+    "ner": "Г.Батдэлгэр",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "batdelger.g@num.edu.mn"
+  },
+  {
+    "ner": "Г.Ууганбаяр",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "uuganbayar.g@num.edu.mn"
+  },
+  {
+    "ner": "Н.Мөнхцэцэг",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "munkhtsetseg_n@num.edu.mn"
+  },
+  {
+    "ner": "Г.Гантулга",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "gantulga_g@num.edu.mn"
+  },
+  {
+    "ner": "Ж.Үйтүмэн",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "uitumen@num.edu.mn"
+  },
+  {
+    "ner": "А.Амгалан",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "amgalan.a@num.edu.mn"
+  },
+  {
+    "ner": "З.Цолмон",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "tsolmonz@num.edu.mn"
+  },
+  {
+    "ner": "С.Уянга",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "uyanga@num.edu.mn"
+  },
+  {
+    "ner": "Н.Оюун-Эрдэнэ",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "oyunerdene@num.edu.mn"
+  },
+  {
+    "ner": "Д.Нанзадрагчаа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "nanzadragchaa@num.edu.mn"
+  },
+  {
+    "ner": "Д.Энхзол",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "enkhzol@num.edu.mn"
+  },
+  {
+    "ner": "Т.Мөнх-Орших",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "munkhorshikh@num.edu.mn"
+  },
+  {
+    "ner": "Б.Энхтуул",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "enkhtuul.b@num.edu.mn"
+  },
+  {
+    "ner": "П.Далайжаргал",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "dalaijargal@num.edu.mn"
+  },
+  {
+    "ner": "С.Нямлхагва",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "nyamlkhagva@num.edu.mn"
+  },
+  {
+    "ner": "И.Бямбасүрэн",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "byambaa@num.edu.mn"
+  },
+  {
+    "ner": "Б.Хуягбаатар",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "khuyagbaatar@num.edu.mn"
+  },
+  {
+    "ner": "Б.Доржнамжирмаа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "dorjoo@num.edu.mn"
+  },
+  {
+    "ner": "Н.Чойжамц",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "choijamts.n@num.edu.mn"
+  },
+  {
+    "ner": "Ш.Бат-Өлзий",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "batulzii@num.edu.mn"
+  },
+  {
+    "ner": "Б.Наранчимэг",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "naranchimeg@num.edu.mn"
+  },
+  {
+    "ner": "С.Батбаяр",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "batbayar.s@num.edu.mn"
+  },
+  {
+    "ner": "О.Отгоннаран",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "otgonnaran@num.edu.mn"
+  },
+  {
+    "ner": "Б.Сувдаа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "suvdaa@num.edu.mn"
+  },
+  {
+    "ner": "Б.Аззаяа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "azzaya.b@num.edu.mn"
+  },
+  {
+    "ner": "Б.Магсаржав",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "magsarjav@num.edu.mn"
+  },
+  {
+    "ner": "Ц.Лхамролом",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "lkhamrolom@num.edu.mn"
+  },
+  {
+    "ner": "М.Амарзаяа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "amarzaya.m@num.edu.mn"
+  },
+  {
+    "ner": "П.Гантуяа",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "gantuya.p@num.edu.mn"
+  },
+  {
+    "ner": "О.Билгүүн",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "bilguun.o@num.edu.mn"
+  },
+  {
+    "ner": "М.Золжаргал",
+    "salbar_surguuli": "Мэдээлэл, компьютерийн ухааны тэнхим",
+    "uruunii_dugaar": null,
+    "utas": "",
+    "email": "ZOLJARGAL@NUM.EDU.MN"
+  }
+]
