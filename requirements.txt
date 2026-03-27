@@ -1,7 +1,7 @@
+python_dotenv
+pinecone
+sentence_transformers
 flask
-anthropic
-PyPDF2
 markdown
-python-dotenv
-pinecone-client
-sentence-transformers
+anthropic
+pypdf2
