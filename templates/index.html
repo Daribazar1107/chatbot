@@ -5,674 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Нэгдсэн хандалтын орчин</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-    }
-
-    body {
-      background: #f3f6fb;
-      color: #23314f;
-      overflow: hidden;
-    }
-
-    .topbar {
-      height: 48px;
-      background: linear-gradient(90deg, #234a93, #4da3e3);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      color: white;
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .menu-icon {
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .top-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #ffffff;
-      color: #234a93;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 250px 1fr 420px;
-      height: calc(100vh - 48px);
-    }
-
-    .sidebar {
-      background: #ffffff;
-      border-right: 1px solid #e7edf5;
-      padding: 18px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .sidebar-menu {
-      margin-top: 8px;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 22px;
-      color: #5d6780;
-      font-size: 15px;
-      cursor: pointer;
-      position: relative;
-      transition: 0.2s ease;
-    }
-
-    .menu-item:hover {
-      background: #f6f8fc;
-    }
-
-    .menu-item.active {
-      color: #274b92;
-      font-weight: 600;
-    }
-
-    .menu-item.active::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      top: 8px;
-      bottom: 8px;
-      width: 3px;
-      background: #274b92;
-      border-radius: 3px 0 0 3px;
-    }
-
-    .menu-ic {
-      width: 22px;
-      text-align: center;
-      font-size: 18px;
-      opacity: 0.85;
-    }
-
-    .main {
-      padding: 8px 18px 18px;
-      overflow-y: auto;
-    }
-
-    .main-header {
-      background: #f9fbfe;
-      border-bottom: 1px solid #e4eaf3;
-      padding: 10px 8px 12px;
-      margin-bottom: 16px;
-    }
-
-    .main-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #33415c;
-      margin-bottom: 6px;
-    }
-
-    .main-subtitle {
-      font-size: 13px;
-      color: #6c7790;
-    }
-
-    .section-title {
-      font-size: 17px;
-      color: #75819b;
-      font-weight: 700;
-      margin: 18px 6px 16px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-      padding: 0 6px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 20px;
-      min-height: 102px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
-      border: 1px solid #edf2f8;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(16, 24, 40, 0.08);
-    }
-
-    .card-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      flex-shrink: 0;
-      background: #eef3ff;
-      color: #4a67d6;
-    }
-
-    .card-icon.chatbot {
-      background: #e9f1ff;
-      color: #2f5eb7;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #1f2a44;
-    }
-
-    .card-desc {
-      font-size: 14px;
-      line-height: 1.35;
-      color: #69758f;
-    }
-
-    .right-panel {
-      background: #f7f9fc;
-      border-left: 1px solid #e7edf5;
-      padding: 14px 12px;
-      overflow-y: auto;
-    }
-
-    .panel-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #64708a;
-      margin: 6px 8px 10px;
-    }
-
-    .panel-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
-      border: 1px solid #edf2f8;
-      margin-bottom: 18px;
-    }
-
-    .news-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      color: #60708f;
-      font-size: 24px;
-    }
-
-    .news-title {
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: #31456f;
-      margin-bottom: 14px;
-    }
-
-    .news-text {
-      font-size: 14px;
-      line-height: 1.55;
-      color: #49566f;
-      min-height: 120px;
-    }
-
-    .dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #c9d3e4;
-    }
-
-    .dot.active {
-      background: #4463a8;
-    }
-
-    .plan-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 15px;
-      font-weight: 700;
-      color: #2c4c97;
-      margin-bottom: 14px;
-    }
-
-    .week-title {
-      text-align: center;
-      color: #3d7fd4;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .plan-list {
-      max-height: 240px;
-      overflow-y: auto;
-      border-top: 1px solid #edf1f7;
-      padding-top: 10px;
-    }
-
-    .plan-item {
-      padding: 10px 4px;
-      border-bottom: 1px solid #f1f4f9;
-    }
-
-    .plan-item-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #283548;
-      margin-bottom: 4px;
-      line-height: 1.35;
-    }
-
-    .plan-item-date {
-      font-size: 12px;
-      color: #7b879d;
-    }
-
-    /* CHATBOT */
-    .chatbot-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.25);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 18px;
-    }
-
-    .chatbot-overlay.active {
-      display: flex;
-    }
-
-    .chatbot-modal {
-      width: min(1550px, 98vw);
-      height: min(880px, 96vh);
-      background: #fff;
-      border-radius: 30px;
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chatbot-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 26px 16px;
-    }
-
-    .chat-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 17px;
-      font-weight: 700;
-      color: #111827;
-    }
-
-    .chat-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ffffff, #d6e7ff 35%, #6ca3ef 70%, #2c5bb3 100%);
-      box-shadow: 0 4px 10px rgba(44, 91, 179, 0.22);
-    }
-
-    .chat-controls {
-      display: flex;
-      gap: 18px;
-    }
-
-    .chat-control-btn {
-      border: none;
-      background: transparent;
-      font-size: 20px;
-      cursor: pointer;
-      color: #111827;
-    }
-
-    .chatbot-body {
-      flex: 1;
-      padding: 10px 24px 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-    }
-
-    .chat-center {
-      max-width: 1040px;
-      width: 100%;
-      margin: 0 auto;
-      padding-top: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .chat-date {
-      color: #79829a;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    .chat-sparkle {
-      font-size: 34px;
-      margin-bottom: 14px;
-    }
-
-    .chat-welcome {
-      font-size: 34px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 40px;
-    }
-
-    .quick-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .quick-item {
-      width: 100%;
-      background: #edf4ff;
-      border: none;
-      border-radius: 999px;
-      padding: 20px 24px;
-      text-align: left;
-      font-size: 16px;
-      color: #2f5eb7;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: 0.2s ease;
-    }
-
-    .quick-item:hover {
-      background: #e4efff;
-    }
-
-    .quick-item.active {
-      border: 2px solid #1f2937;
-      padding: 18px 22px;
-    }
-
-    .chat-bottom {
-      max-width: 1120px;
-      width: 100%;
-      margin: 4px auto 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      flex: 1;
-    }
-
-    .messages {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      overflow-y: auto;
-      padding: 6px 6px 0;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .msg-row {
-      display: flex;
-      width: 100%;
-    }
-
-    .msg-row.user {
-      justify-content: flex-end;
-    }
-
-    .msg-row.bot {
-      justify-content: flex-start;
-    }
-
-    .msg {
-      max-width: 76%;
-      padding: 14px 18px;
-      border-radius: 18px;
-      line-height: 1.5;
-      font-size: 15px;
-    }
-
-    .msg.user {
-      background: #d9e9ff;
-      color: #1e3a6e;
-      border-bottom-right-radius: 6px;
-      font-weight: 600;
-    }
-
-    .msg.bot {
-      background: #f2f4f7;
-      color: #24324a;
-      border-bottom-left-radius: 6px;
-    }
-
-    .bot-rich {
-      max-width: 920px;
-      padding: 6px 4px 0 4px;
-      color: #101828;
-      line-height: 1.7;
-      font-size: 17px;
-    }
-
-    .bot-rich h3 {
-      font-size: 22px;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-
-    .bot-rich ul {
-      padding-left: 28px;
-      margin-bottom: 18px;
-    }
-
-    .bot-rich li {
-      margin-bottom: 8px;
-    }
-
-    .bot-rich p {
-      margin-bottom: 14px;
-    }
-
-    .bot-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 12px 0 8px 0;
-    }
-
-    .bot-chip-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ffffff, #d6e7ff 35%, #6ca3ef 70%, #2c5bb3 100%);
-      flex-shrink: 0;
-      box-shadow: 0 4px 8px rgba(44, 91, 179, 0.18);
-    }
-
-    .bot-chip {
-      border: 1px solid #d3ddeb;
-      background: white;
-      color: #111827;
-      padding: 12px 22px;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .bot-chip:hover {
-      background: #f8fbff;
-      border-color: #aac5ef;
-    }
-
-    .input-area {
-      padding-top: 14px;
-      background: white;
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #f6f7f9;
-      border-radius: 999px;
-      padding: 10px 14px 10px 20px;
-    }
-
-    .chat-input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 16px;
-      color: #344054;
-    }
-
-    .chat-input::placeholder {
-      color: #98a2b3;
-    }
-
-    .input-tools {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .tool-btn {
-      border: none;
-      background: transparent;
-      font-size: 22px;
-      color: #667085;
-      cursor: pointer;
-    }
-
-    .send-btn {
-      width: 50px;
-      height: 50px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(180deg, #4d86dd, #2b5db3);
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(43, 93, 179, 0.22);
-    }
-
-    .powered {
-      text-align: center;
-      margin-top: 12px;
-      font-size: 14px;
-      color: #111827;
-    }
-
-    .powered span {
-      color: #6b7280;
-      margin: 0 6px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 1300px) {
-      .layout {
-        grid-template-columns: 220px 1fr 360px;
-      }
-
-      .cards {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 1000px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar,
-      .right-panel {
-        display: none;
-      }
-
-      .cards {
-        grid-template-columns: 1fr;
-      }
-
-      .chatbot-modal {
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-      }
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+    body { background: #f3f6fb; color: #23314f; overflow: hidden; }
+    .topbar { height: 48px; background: linear-gradient(90deg, #234a93, #4da3e3); display: flex; align-items: center; justify-content: space-between; padding: 0 14px; color: white; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; }
+    .menu-icon { font-size: 18px; cursor: pointer; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .top-avatar { width: 34px; height: 34px; border-radius: 50%; background: #ffffff; color: #234a93; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .layout { display: grid; grid-template-columns: 250px 1fr 420px; height: calc(100vh - 48px); }
+    .sidebar { background: #ffffff; border-right: 1px solid #e7edf5; padding: 18px 0; display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-menu { margin-top: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 14px; padding: 12px 22px; color: #5d6780; font-size: 15px; cursor: pointer; position: relative; transition: 0.2s ease; }
+    .menu-item:hover { background: #f6f8fc; }
+    .menu-item.active { color: #274b92; font-weight: 600; }
+    .menu-item.active::after { content: ""; position: absolute; right: 0; top: 8px; bottom: 8px; width: 3px; background: #274b92; border-radius: 3px 0 0 3px; }
+    .menu-ic { width: 22px; text-align: center; font-size: 18px; opacity: 0.85; }
+    .main { padding: 8px 18px 18px; overflow-y: auto; }
+    .main-header { background: #f9fbfe; border-bottom: 1px solid #e4eaf3; padding: 10px 8px 12px; margin-bottom: 16px; }
+    .main-title { font-size: 18px; font-weight: 700; color: #33415c; margin-bottom: 6px; }
+    .main-subtitle { font-size: 13px; color: #6c7790; }
+    .section-title { font-size: 17px; color: #75819b; font-weight: 700; margin: 18px 6px 16px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 0 6px; }
+    .card { background: #fff; border-radius: 18px; padding: 20px; min-height: 102px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04); border: 1px solid #edf2f8; cursor: pointer; transition: 0.2s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 24, 40, 0.08); }
+    .card-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background: #eef3ff; color: #4a67d6; }
+    .card-icon.chatbot { background: #e9f1ff; color: #2f5eb7; }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: #1f2a44; }
+    .card-desc { font-size: 14px; line-height: 1.35; color: #69758f; }
+    .right-panel { background: #f7f9fc; border-left: 1px solid #e7edf5; padding: 14px 12px; overflow-y: auto; }
+    .panel-title { font-size: 14px; font-weight: 600; color: #64708a; margin: 6px 8px 10px; }
+    .panel-box { background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04); border: 1px solid #edf2f8; margin-bottom: 18px; }
+    .news-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; color: #60708f; font-size: 24px; }
+    .news-title { text-align: center; font-size: 18px; font-weight: 700; color: #31456f; margin-bottom: 14px; }
+    .news-text { font-size: 14px; line-height: 1.55; color: #49566f; min-height: 120px; }
+    .dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #c9d3e4; }
+    .dot.active { background: #4463a8; }
+    .plan-head { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 700; color: #2c4c97; margin-bottom: 14px; }
+    .week-title { text-align: center; color: #3d7fd4; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+    .plan-list { max-height: 240px; overflow-y: auto; border-top: 1px solid #edf1f7; padding-top: 10px; }
+    .plan-item { padding: 10px 4px; border-bottom: 1px solid #f1f4f9; }
+    .plan-item-title { font-size: 13px; font-weight: 600; color: #283548; margin-bottom: 4px; line-height: 1.35; }
+    .plan-item-date { font-size: 12px; color: #7b879d; }
+
+    .chatbot-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.25); display: none; align-items: center; justify-content: center; z-index: 999; padding: 18px; }
+    .chatbot-overlay.active { display: flex; }
+    .chatbot-modal { width: min(1550px, 98vw); height: min(880px, 96vh); background: #fff; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22); display: flex; flex-direction: column; }
+    .chatbot-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px 16px; }
+    .chat-brand { display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 700; color: #111827; }
+    .chat-avatar { width: 38px; height: 38px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffffff, #d6e7ff 35%, #6ca3ef 70%, #2c5bb3 100%); box-shadow: 0 4px 10px rgba(44, 91, 179, 0.22); }
+    .chat-controls { display: flex; gap: 18px; }
+    .chat-control-btn { border: none; background: transparent; font-size: 20px; cursor: pointer; color: #111827; }
+    .chatbot-body { flex: 1; padding: 10px 24px 18px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .chat-center { max-width: 1040px; width: 100%; margin: 0 auto; padding-top: 10px; display: flex; flex-direction: column; align-items: center; }
+    .chat-date { color: #79829a; font-size: 14px; margin-bottom: 24px; }
+    .chat-welcome { font-size: 34px; font-weight: 700; color: #111827; margin-bottom: 40px; }
+    .quick-list { width: 100%; display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+    .quick-item { width: 100%; background: #edf4ff; border: none; border-radius: 999px; padding: 20px 24px; text-align: left; font-size: 16px; color: #2f5eb7; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s ease; }
+    .quick-item:hover { background: #e4efff; }
+    .chat-bottom { max-width: 1120px; width: 100%; margin: 4px auto 0; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+    .messages { display: flex; flex-direction: column; gap: 18px; overflow-y: auto; padding: 6px 6px 0; flex: 1; min-height: 0; }
+    .msg-row { display: flex; width: 100%; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.bot { justify-content: flex-start; }
+    .msg { max-width: 76%; padding: 14px 18px; border-radius: 18px; line-height: 1.5; font-size: 15px; }
+    .msg.user { background: #d9e9ff; color: #1e3a6e; border-bottom-right-radius: 6px; font-weight: 600; }
+    .msg.bot { background: #f2f4f7; color: #24324a; border-bottom-left-radius: 6px; }
+    .bot-rich { max-width: 920px; padding: 6px 4px 0 4px; color: #101828; line-height: 1.7; font-size: 17px; }
+    .input-area { padding-top: 14px; background: white; }
+    .input-row { display: flex; align-items: center; gap: 12px; background: #f6f7f9; border-radius: 999px; padding: 10px 14px 10px 20px; }
+    .chat-input { flex: 1; border: none; outline: none; background: transparent; font-size: 16px; color: #344054; }
+    .tool-btn { border: none; background: transparent; font-size: 22px; color: #667085; cursor: pointer; }
+    .send-btn { width: 50px; height: 50px; border: none; border-radius: 50%; background: linear-gradient(180deg, #4d86dd, #2b5db3); color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 8px 18px rgba(43, 93, 179, 0.22); }
+    .hidden { display: none !important; }
+    @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } .sidebar, .right-panel { display: none; } .chatbot-modal { width: 100vw; height: 100vh; border-radius: 0; } }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="topbar-left">
-      <div class="menu-icon">☰</div>
-      <div>Нэгдсэн хандалтын орчин</div>
-    </div>
-    <div class="topbar-right">
-      <div>🔔</div>
-      <div class="top-avatar">О</div>
-    </div>
+    <div class="topbar-left"><div class="menu-icon">☰</div><div>Нэгдсэн хандалтын орчин</div></div>
+    <div class="topbar-right"><div>🔔</div><div class="top-avatar">О</div></div>
   </div>
 
   <div class="layout">
@@ -680,179 +92,58 @@
       <div class="sidebar-menu">
         <div class="menu-item active"><span class="menu-ic">🏠</span> Нүүр хуудас</div>
         <div class="menu-item"><span class="menu-ic">👤</span> Хувийн мэдээлэл</div>
-        <div class="menu-item"><span class="menu-ic">🕘</span> Нэвтрэлтийн түүх</div>
-        <div class="menu-item"><span class="menu-ic">🛡️</span> Мэдээллийн зөвшөөрөл</div>
-        <div class="menu-item"><span class="menu-ic">📄</span> Мэдээлэлд хандсан түүх</div>
-        <div class="menu-item"><span class="menu-ic">📋</span> Гэрээ</div>
         <div class="menu-item"><span class="menu-ic">💬</span> FAQ</div>
-        <div class="menu-item"><span class="menu-ic">✍️</span> Гарын авлага</div>
       </div>
     </aside>
 
     <main class="main">
       <div class="main-header">
         <div class="main-title">Мэдээллийн технологи</div>
-        <div class="main-subtitle">Мэдээллийн технологи, электроникийн сургууль</div>
+        <div class="main-subtitle">NUM Chatbot System 2026</div>
       </div>
-
       <div class="section-title">Сургалт, судалгаа</div>
       <div class="cards">
-        <div class="card">
-          <div class="card-icon">S</div>
-          <div>
-            <div class="card-title">SISi</div>
-            <div class="card-desc">Сургалт удирдлагын мэдээллийн систем</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-icon">📘</div>
-          <div>
-            <div class="card-title">Koha</div>
-            <div class="card-desc">Номын сангийн мэдээллийн систем</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-icon" style="background:#fff5e7;color:#ea9a00;">📚</div>
-          <div>
-            <div class="card-title">Koha</div>
-            <div class="card-desc">Цахим номын сан</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-icon">e</div>
-          <div>
-            <div class="card-title">edX</div>
-            <div class="card-desc">Цахим сургалтын систем</div>
-          </div>
-        </div>
-
         <div class="card" id="openChatbot">
           <div class="card-icon chatbot">🤖</div>
-          <div>
-            <div class="card-title">Чатбот</div>
-            <div class="card-desc">Оюутны мэдээллийн дижитал туслах</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">Байгууллагын үйл ажиллагаа</div>
-      <div class="cards" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-        <div class="card">
-          <div class="card-icon" style="background:#fff4e7;color:#e49b25;">📊</div>
-          <div>
-            <div class="card-title">NUM career</div>
-            <div class="card-desc">Карьер хөгжлийг дэмжих үйлчилгээ</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-icon" style="background:#f2ecff;color:#7a5af8;">◉</div>
-          <div>
-            <div class="card-title">Microsoft 365</div>
-            <div class="card-desc">Outlook, OneDrive, Teams, Calendar, Planner ...</div>
-          </div>
+          <div><div class="card-title">Чатбот</div><div class="card-desc">Дижитал туслах</div></div>
         </div>
       </div>
     </main>
 
     <aside class="right-panel">
       <div class="panel-title">Мэдээ</div>
-      <div class="panel-box">
-        <div class="news-head">
-          <span>‹</span>
-          <span>›</span>
-        </div>
-        <div class="news-title">Даалгавар</div>
-        <div class="news-text">
-          Танд “Мэдээллийн аюулгүй байдал” хичээл дээр шинэ даалгавар нэмэгдсэн байна.
-          Дэлгэрэнгүйг SISi системээс шалгана уу.
-        </div>
-        <div class="dots">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot active"></div>
-        </div>
-      </div>
-
-      <div class="panel-title">Хичээлийн жилийн төлөвлөгөө</div>
-      <div class="panel-box">
-        <div class="plan-head">
-          <span>2025-2026, Хаврын улирал</span>
-          <span>🗓️</span>
-        </div>
-
-        <div class="week-title">8-р долоо хоног</div>
-
-        <div class="plan-list">
-          <div class="plan-item">
-            <div class="plan-item-title">Хөтөлбөр сонголтын хүсэлт</div>
-            <div class="plan-item-date">03.01 - 03.31</div>
-          </div>
-          <div class="plan-item">
-            <div class="plan-item-title">Суралцагч тэтгэх хүсэлт</div>
-            <div class="plan-item-date">03.09 - 04.10</div>
-          </div>
-          <div class="plan-item">
-            <div class="plan-item-title">Явцын шалгалт</div>
-            <div class="plan-item-date">03.23 - 03.27</div>
-          </div>
-          <div class="plan-item">
-            <div class="plan-item-title">Бакалаврын өдөрлөг</div>
-            <div class="plan-item-date">03.23 - 03.27</div>
-          </div>
-        </div>
-      </div>
+      <div class="panel-box"><div class="news-text">Тавтай морилно уу.</div></div>
     </aside>
   </div>
 
   <div class="chatbot-overlay" id="chatbotOverlay">
     <div class="chatbot-modal">
       <div class="chatbot-header">
-        <div class="chat-brand">
-          <div class="chat-avatar"></div>
-          <div>МУИС дижитал туслах</div>
-        </div>
+        <div class="chat-brand"><div class="chat-avatar"></div><div>МУИС дижитал туслах</div></div>
         <div class="chat-controls">
-          <button class="chat-control-btn">＋</button>
+          <button class="chat-control-btn" id="newChat">＋</button>
           <button class="chat-control-btn" id="closeChatbot">✕</button>
         </div>
       </div>
-
       <div class="chatbot-body">
         <div class="chat-center" id="chatIntro">
           <div class="chat-date" id="todayDate"></div>
           <div class="chat-welcome">Сайн байна уу 👋</div>
-
           <div class="quick-list">
-            <button class="quick-item" data-key="payment">✈ Төлбөр төлөх заавар</button>
-            <button class="quick-item" data-key="schedule">✈ Хичээлийн хуваарь</button>
-            <button class="quick-item" data-key="teacher">✈ Багшийн мэдээлэл</button>
-            <button class="quick-item" data-key="rule">✈ Журам</button>
+            <button class="quick-item" data-val="Төлбөр төлөх заавар">✈ Төлбөр төлөх заавар</button>
+            <button class="quick-item" data-val="Хичээлийн хуваарь">✈ Хичээлийн хуваарь</button>
           </div>
         </div>
-
         <div class="chat-bottom">
           <div class="messages" id="chatMessages"></div>
-
           <div class="input-area">
             <div class="input-row">
-              <input
-                type="text"
-                id="chatInput"
-                class="chat-input"
-                placeholder="Энд асуултаа бичээрэй..."
-              />
+              <input type="text" id="chatInput" class="chat-input" placeholder="Энд асуултаа бичээрэй..." />
               <div class="input-tools">
-                <button class="tool-btn">📎</button>
-                <button class="tool-btn">🎙</button>
+                <button class="tool-btn" id="attachBtn">📎</button>
                 <button class="send-btn" id="sendBtn">➤</button>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -860,228 +151,91 @@
   </div>
 
   <script>
-    const openChatbot = document.getElementById("openChatbot");
-    const chatbotOverlay = document.getElementById("chatbotOverlay");
-    const closeChatbot = document.getElementById("closeChatbot");
-    const todayDate = document.getElementById("todayDate");
+    const openBtn = document.getElementById("openChatbot");
+    const closeBtn = document.getElementById("closeChatbot");
+    const overlay = document.getElementById("chatbotOverlay");
     const chatInput = document.getElementById("chatInput");
     const sendBtn = document.getElementById("sendBtn");
     const chatMessages = document.getElementById("chatMessages");
-    const quickItems = document.querySelectorAll(".quick-item");
     const chatIntro = document.getElementById("chatIntro");
+    const attachBtn = document.getElementById("attachBtn");
+    const newChatBtn = document.getElementById("newChat");
 
-    let introHidden = false;
+    let history = [];
+    let hasIndex = false;
 
-    const answerTemplates = {
-      payment: {
-        user: "Төлбөр төлөх заавар",
-        html: `
-          <div class="bot-rich">
-            <h3>Төлбөр төлөх заавар</h3>
-            <ul>
-              <li><strong>SISi систем</strong> рүү өөрийн эрхээр нэвтэрнэ.</li>
-              <li><strong>Төлбөр</strong> эсвэл <strong>Санхүү</strong> хэсгийг сонгоно.</li>
-              <li><strong>Төлөх дүн</strong> болон үлдэгдлээ шалгана.</li>
-              <li>QPay, картаар эсвэл бусад боломжит сувгаар төлбөрөө төлнө.</li>
-              <li>Амжилттай төлсний дараа систем дээр төлөв шинэчлэгдсэн эсэхийг шалгана.</li>
-            </ul>
-            <p>Дэлгэрэнгүй мэдээлэл хэрэгтэй бол дараах товчнуудаас сонгож асуугаарай.</p>
-          </div>
-        `,
-        actions: ["Төлбөрийн үлдэгдэл", "QPay заавар"]
-      },
-      schedule: {
-        user: "Хичээлийн хуваарь",
-        html: `
-          <div class="bot-rich">
-            <h3>Хичээлийн хуваарь</h3>
-            <ul>
-              <li><strong>SISi</strong> систем рүү нэвтэрнэ.</li>
-              <li><strong>Миний хичээл</strong> эсвэл <strong>Хуваарь</strong> цэсийг сонгоно.</li>
-              <li>Улирал, долоо хоногийн мэдээллээ сонгож хуваариа харна.</li>
-              <li>Хичээлийн <strong>өдөр, цаг, анги, багш</strong>-ийн мэдээлэл тэнд харагдана.</li>
-            </ul>
-            <p>Хэрэв хүсвэл би багшийн мэдээлэл эсвэл өрөөний мэдээллийн асуулт руу үргэлжлүүлж болно.</p>
-          </div>
-        `,
-        actions: ["Багшийн мэдээлэл", "Өрөөний мэдээлэл"]
-      },
-      teacher: {
-        user: "Багшийн мэдээлэл",
-        html: `
-          <div class="bot-rich">
-            <h3>Багшийн мэдээлэл</h3>
-            <ul>
-              <li>Багшийн <strong>овог нэр</strong>, <strong>тэнхим</strong>, <strong>албан тушаал</strong> зэрэг мэдээллийг хайх боломжтой.</li>
-              <li>Цаашдаа API холбосны дараа <strong>имэйл</strong>, <strong>өрөө</strong>, <strong>холбоо барих</strong> мэдээлэл автоматаар гарна.</li>
-            </ul>
-            <p>Жишээ асуулт: “Програм хангамжийн тэнхимийн багш хэн бэ?”</p>
-          </div>
-        `,
-        actions: ["Тэнхимийн мэдээлэл", "Холбоо барих"]
-      },
-      rule: {
-        user: "Журам",
-        html: `
-          <div class="bot-rich">
-            <h3>Журам</h3>
-            <ul>
-              <li>Сургалтын үйл ажиллагаатай холбоотой дүрэм, журам, шаардлагыг эндээс тайлбарлаж өгөх боломжтой.</li>
-              <li>API болон PDF өгөгдөл холбосны дараа чатбот тодорхой заалт, холбоос, тайлбарыг гаргаж өгнө.</li>
-            </ul>
-            <p>Жишээ нь: чөлөө авах журам, сонгон хичээлтэй холбоотой журам, төлбөрийн журам гэх мэт.</p>
-          </div>
-        `,
-        actions: ["Чөлөө авах журам", "Төлбөрийн журам"]
-      }
+    openBtn.onclick = () => overlay.classList.add("active");
+    closeBtn.onclick = () => overlay.classList.remove("active");
+
+    newChatBtn.onclick = () => {
+        chatMessages.innerHTML = "";
+        chatIntro.classList.remove("hidden");
+        history = [];
     };
 
-    function formatDateMn() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const day = String(now.getDate()).padStart(2, "0");
-      return `${year} оны ${month} сарын ${day}`;
-    }
-
-    todayDate.textContent = formatDateMn();
-
-    openChatbot.addEventListener("click", () => {
-      chatbotOverlay.classList.add("active");
-    });
-
-    closeChatbot.addEventListener("click", () => {
-      chatbotOverlay.classList.remove("active");
-    });
-
-    chatbotOverlay.addEventListener("click", (e) => {
-      if (e.target === chatbotOverlay) {
-        chatbotOverlay.classList.remove("active");
-      }
-    });
-
-    function hideIntro() {
-      if (!introHidden) {
+    function addMsg(text, type) {
         chatIntro.classList.add("hidden");
-        introHidden = true;
-      }
+        const row = document.createElement("div");
+        row.className = `msg-row ${type}`;
+        row.innerHTML = `<div class="msg ${type}">${text}</div>`;
+        chatMessages.appendChild(row);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function addUserBubble(text) {
-      const row = document.createElement("div");
-      row.className = "msg-row user";
+    async function askAI(text) {
+        addMsg(text, "user");
+        const loading = document.createElement("div");
+        loading.className = "msg-row bot";
+        loading.innerHTML = `<div class="msg bot">...</div>`;
+        chatMessages.appendChild(loading);
 
-      const bubble = document.createElement("div");
-      bubble.className = "msg user";
-      bubble.textContent = text;
-
-      row.appendChild(bubble);
-      chatMessages.appendChild(row);
+        try {
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text, history: history, has_index: hasIndex })
+            });
+            const data = await res.json();
+            chatMessages.removeChild(loading);
+            if (data.answer) {
+                addMsg(data.answer, "bot");
+                history.push({ role: "user", content: text });
+                history.push({ role: "assistant", content: data.answer });
+            }
+        } catch (e) {
+            chatMessages.removeChild(loading);
+            addMsg("Алдаа гарлаа.", "bot");
+        }
     }
 
-    function addBotHtml(html, actions = []) {
-      const row = document.createElement("div");
-      row.className = "msg-row bot";
+    sendBtn.onclick = () => {
+        const val = chatInput.value.trim();
+        if (val) { chatInput.value = ""; askAI(val); }
+    };
 
-      const wrapper = document.createElement("div");
+    chatInput.onkeydown = (e) => { if (e.key === "Enter") sendBtn.click(); };
 
-      const content = document.createElement("div");
-      content.innerHTML = html;
-
-      wrapper.appendChild(content);
-
-      if (actions.length > 0) {
-        const actionsWrap = document.createElement("div");
-        actionsWrap.className = "bot-actions";
-
-        const icon = document.createElement("div");
-        icon.className = "bot-chip-icon";
-        actionsWrap.appendChild(icon);
-
-        actions.forEach((item) => {
-          const btn = document.createElement("button");
-          btn.className = "bot-chip";
-          btn.textContent = item;
-          btn.addEventListener("click", () => {
-            handleFreeQuestion(item);
-          });
-          actionsWrap.appendChild(btn);
-        });
-
-        wrapper.appendChild(actionsWrap);
-      }
-
-      row.appendChild(wrapper);
-      chatMessages.appendChild(row);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function renderTemplate(key) {
-      const data = answerTemplates[key];
-      if (!data) return;
-
-      hideIntro();
-      addUserBubble(data.user);
-      addBotHtml(data.html, data.actions);
-    }
-
-    function handleFreeQuestion(text) {
-      hideIntro();
-      addUserBubble(text);
-
-      let html = `
-        <div class="bot-rich">
-          <p><strong>${text}</strong> асуултын хариуг энд харуулна. Backend болон API холбосны дараа бодит өгөгдлөөс хариулт өгнө.</p>
-        </div>
-      `;
-
-      if (text.toLowerCase().includes("үлдэгдэл")) {
-        html = `
-          <div class="bot-rich">
-            <p><strong>Төлбөрийн үлдэгдэл</strong> мэдээллийг SISi системээс автоматаар татаж харуулах боломжтой.</p>
-          </div>
-        `;
-      } else if (text.toLowerCase().includes("qpay")) {
-        html = `
-          <div class="bot-rich">
-            <p><strong>QPay заавар:</strong> төлбөр хэсэг рүү орж QPay сонголтоо хийгээд QR код уншуулан төлөх боломжтой.</p>
-          </div>
-        `;
-      } else if (text.toLowerCase().includes("өрөө")) {
-        html = `
-          <div class="bot-rich">
-            <p><strong>Өрөөний мэдээлэл</strong> энд харагдана. Цаашдаа хичээлийн хуваарьтай уялдуулж анги танхимын байршлыг харуулна.</p>
-          </div>
-        `;
-      } else if (text.toLowerCase().includes("холбоо")) {
-        html = `
-          <div class="bot-rich">
-            <p><strong>Холбоо барих мэдээлэл</strong> энд харагдана. Тэнхим, сургалтын алба, багш ажилтны утас, имэйлийг гаргаж болно.</p>
-          </div>
-        `;
-      }
-
-      addBotHtml(html, []);
-    }
-
-    function sendMessage() {
-      const text = chatInput.value.trim();
-      if (!text) return;
-      chatInput.value = "";
-      handleFreeQuestion(text);
-    }
-
-    quickItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        renderTemplate(item.dataset.key);
-      });
+    document.querySelectorAll(".quick-item").forEach(btn => {
+        btn.onclick = () => askAI(btn.dataset.val);
     });
 
-    sendBtn.addEventListener("click", sendMessage);
+    const fileInp = document.createElement("input");
+    fileInp.type = "file";
+    fileInp.multiple = true;
+    attachBtn.onclick = () => fileInp.click();
+    fileInp.onchange = async () => {
+        const fd = new FormData();
+        for (const f of fileInp.files) fd.append("file", f);
+        addMsg("Файл уншиж байна...", "bot");
+        const res = await fetch("/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (data.success) {
+            hasIndex = true;
+            addMsg(`Амжилттай. ${data.chunks} хэсэг өгөгдөл нэмэгдлээ.`, "bot");
+        }
+    };
 
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
+    document.getElementById("todayDate").textContent = new Date().toLocaleDateString('mn-MN');
   </script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+flask
+anthropic
+PyPDF2
+markdown
+python-dotenv
+pinecone-client
+sentence-transformers
