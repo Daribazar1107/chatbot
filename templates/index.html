@@ -344,167 +344,168 @@
 
   <script>
     // ── News slider ───────────────────────────────────────────────
-    const newsSlides = [
-      {
-        title: "Microsoft Authenticator идэвхжүүлэх",
-        body: "Microsoft-ын Office 365 үйлчилгээнд нэвтрэх эрхийн баталгаажуулах кодыг мессэжээр авах үйлчилгээ хэт их мессэж авсан тул Microsoft-оос block хийсэн байна. Цаашид мессэжээр баталгаажуулах код хүлээн авах үйлчилгээ ашиглах боломжгүй болох магадлал өндөр байгаа тул бүх хэрэглэгч Microsoft Authenticator апп суулгаж идэвхжүүлнэ үү."
-      },
-      {
-        title: "Шинэ хичээлийн жил эхэллээ",
-        body: "2025-2026 оны хичээлийн жилийн хаврын улирал эхэллээ. Оюутнууд хуваарийн дагуу хичээлдээ суух, даалгавраа цаг тухайд нь өгөхийг анхааруулж байна."
-      },
-      {
-        title: "SISi системийн шинэчлэл",
-        body: "Сургалт удирдлагын мэдээллийн систем SISi-д шинэчлэл хийгдлээ. Шинэ функцуудыг ашиглахын тулд нэвтрэх нүүрийг дахин ачаалах шаардлагатай."
-      },
-    ];
-    let newsIdx = 0;
-    const dotsEl  = document.getElementById("newsDots");
-    const titleEl = document.getElementById("newsTitle");
-    const bodyEl  = document.getElementById("newsBody");
+   // ── Элементүүд ──────────────────────────────────────────
+const openChatbot    = document.getElementById("openChatbot");
+const chatbotOverlay = document.getElementById("chatbotOverlay");
+const closeChatbot   = document.getElementById("closeChatbot");
+const todayDate      = document.getElementById("todayDate");
+const chatInput      = document.getElementById("chatInput");
+const sendBtn        = document.getElementById("sendBtn");
+const chatMessages   = document.getElementById("chatMessages");
+const quickItems     = document.querySelectorAll(".quick-item");
+const chatIntro      = document.getElementById("chatIntro");
 
-    newsSlides.forEach((_, i) => {
-      const d = document.createElement("div");
-      d.className = "dot" + (i === 0 ? " active" : "");
-      d.onclick = () => showNews(i);
-      dotsEl.appendChild(d);
+// ── State ────────────────────────────────────────────────
+let introHidden = false;
+let history     = [];
+let isLoading   = false;
+
+// ── Огноо ───────────────────────────────────────────────
+function formatDateMn() {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day   = String(now.getDate()).padStart(2, "0");
+    return `${year} оны ${month} сарын ${day}`;
+}
+todayDate.textContent = formatDateMn();
+
+// ── Chatbot нээх/хаах ────────────────────────────────────
+openChatbot.addEventListener("click",  () => chatbotOverlay.classList.add("active"));
+closeChatbot.addEventListener("click", () => chatbotOverlay.classList.remove("active"));
+chatbotOverlay.addEventListener("click", (e) => {
+    if (e.target === chatbotOverlay) chatbotOverlay.classList.remove("active");
+});
+
+// ── Туслах функцүүд ──────────────────────────────────────
+function hideIntro() {
+    if (!introHidden) {
+        chatIntro.classList.add("hidden");
+        introHidden = true;
+    }
+}
+
+function addUserBubble(text) {
+    const row = document.createElement("div");
+    row.className = "msg-row user";
+    const bubble = document.createElement("div");
+    bubble.className = "msg user";
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    chatMessages.appendChild(row);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addBotHtml(html, actions = []) {
+    const row = document.createElement("div");
+    row.className = "msg-row bot";
+    const wrapper = document.createElement("div");
+
+    const content = document.createElement("div");
+    content.innerHTML = html;
+    wrapper.appendChild(content);
+
+    if (actions.length > 0) {
+        const actionsWrap = document.createElement("div");
+        actionsWrap.className = "bot-actions";
+        const icon = document.createElement("div");
+        icon.className = "bot-chip-icon";
+        actionsWrap.appendChild(icon);
+        actions.forEach((label) => {
+            const btn = document.createElement("button");
+            btn.className = "bot-chip";
+            btn.textContent = label;
+            btn.addEventListener("click", () => sendMessage(label));
+            actionsWrap.appendChild(btn);
+        });
+        wrapper.appendChild(actionsWrap);
+    }
+
+    row.appendChild(wrapper);
+    chatMessages.appendChild(row);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addTyping() {
+    const row = document.createElement("div");
+    row.className = "msg-row bot";
+    row.id = "typingRow";
+    const bubble = document.createElement("div");
+    bubble.className = "msg bot";
+    bubble.innerHTML = "<em style='color:#aaa'>Хариулт бэлдэж байна...</em>";
+    row.appendChild(bubble);
+    chatMessages.appendChild(row);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function removeTyping() {
+    const el = document.getElementById("typingRow");
+    if (el) el.remove();
+}
+
+// ── Quick items ──────────────────────────────────────────
+const quickLabels = {
+    payment:  "Төлбөр төлөх заавар",
+    schedule: "Хичээлийн хуваарь",
+    teacher:  "Багшийн мэдээлэл",
+    rule:     "Журам",
+};
+
+quickItems.forEach((item) => {
+    item.addEventListener("click", () => {
+        const label = quickLabels[item.dataset.key] || item.textContent.trim();
+        hideIntro();
+        addUserBubble(label);
+        fetchAIAnswer(label);
     });
+});
 
-    function showNews(i) {
-      newsIdx = i;
-      titleEl.textContent = newsSlides[i].title;
-      bodyEl.textContent  = newsSlides[i].body;
-      dotsEl.querySelectorAll(".dot").forEach((d, j) => d.classList.toggle("active", j === i));
-    }
-    showNews(0);
+// ── AI-аас хариулт авах ──────────────────────────────────
+async function fetchAIAnswer(text) {
+    addTyping();
+    isLoading = true;
+    sendBtn.disabled = true;
 
-    document.getElementById("newsPrev").onclick = () => showNews((newsIdx - 1 + newsSlides.length) % newsSlides.length);
-    document.getElementById("newsNext").onclick = () => showNews((newsIdx + 1) % newsSlides.length);
-
-    // ── Chatbot ───────────────────────────────────────────────────
-    const overlay      = document.getElementById("chatbotOverlay");
-    const chatMessages = document.getElementById("chatMessages");
-    const chatIntro    = document.getElementById("chatIntro");
-    const chatInput    = document.getElementById("chatInput");
-    const sendBtn      = document.getElementById("sendBtn");
-    const fileInput    = document.getElementById("fileInput");
-    const pdfBadge     = document.getElementById("pdfBadge");
-
-    let history   = [];
-    let hasPdf    = false;
-    let isLoading = false;
-
-    document.getElementById("openChatbot").onclick = () => overlay.classList.add("active");
-    document.getElementById("closeChatbot").onclick = () => overlay.classList.remove("active");
-    document.getElementById("newChat").onclick = () => {
-      chatMessages.innerHTML = "";
-      chatIntro.classList.remove("hidden");
-      history = [];
-    };
-
-    function escapeHtml(s) {
-      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    }
-
-    function addMsg(html, type, isHtml = false) {
-      chatIntro.classList.add("hidden");
-      const row = document.createElement("div");
-      row.className = "msg-row " + type;
-      if (type === "bot") {
-        row.innerHTML = '<div class="bot-avatar-sm"></div><div class="msg bot">' + (isHtml ? html : escapeHtml(html)) + '</div>';
-      } else {
-        row.innerHTML = '<div class="msg user">' + escapeHtml(html) + '</div>';
-      }
-      chatMessages.appendChild(row);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return row;
-    }
-
-    function addTyping() {
-      chatIntro.classList.add("hidden");
-      const row = document.createElement("div");
-      row.className = "msg-row bot";
-      row.innerHTML = '<div class="bot-avatar-sm"></div><div class="msg bot"><div class="typing"><span></span><span></span><span></span></div></div>';
-      chatMessages.appendChild(row);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return row;
-    }
-
-    function setLoading(val) {
-      isLoading = val;
-      sendBtn.disabled = val;
-      chatInput.disabled = val;
-    }
-
-    async function sendMessage() {
-      const text = chatInput.value.trim();
-      if (!text || isLoading) return;
-      chatInput.value = "";
-      addMsg(text, "user");
-      setLoading(true);
-      const typingRow = addTyping();
-
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, history: history, has_pdf: hasPdf }),
+    try {
+        const res  = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text, history }),
         });
         const data = await res.json();
-        chatMessages.removeChild(typingRow);
-        if (data.answer) {
-          addMsg(data.answer, "bot", true);
-          history.push({ role: "user", content: text });
-          history.push({ role: "assistant", content: data.answer });
+        removeTyping();
+
+        if (data.error) {
+            addBotHtml(`<div class="bot-rich"><p>❌ Алдаа: ${data.error}</p></div>`);
         } else {
-          addMsg(data.error || "Алдаа гарлаа. Дахин оролдоно уу.", "bot");
+            addBotHtml(`<div class="bot-rich">${data.answer}</div>`);
+            history.push({ role: "user",      content: text });
+            history.push({ role: "assistant", content: data.answer });
         }
-      } catch (e) {
-        chatMessages.removeChild(typingRow);
-        addMsg("Сервертэй холбогдоход алдаа гарлаа.", "bot");
-      } finally {
-        setLoading(false);
-        chatInput.focus();
-      }
+    } catch (err) {
+        removeTyping();
+        addBotHtml(`<div class="bot-rich"><p>❌ Сервертэй холбогдох боломжгүй.</p></div>`);
     }
 
-    sendBtn.onclick = sendMessage;
-    chatInput.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) sendMessage(); };
+    isLoading = false;
+    sendBtn.disabled = false;
+}
 
-    document.querySelectorAll(".quick-item").forEach(btn => {
-      btn.onclick = () => { chatInput.value = btn.dataset.val; sendMessage(); };
-    });
+// ── Мессеж илгээх ────────────────────────────────────────
+async function sendMessage(overrideText) {
+    if (isLoading) return;
+    const text = overrideText || chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = "";
+    hideIntro();
+    addUserBubble(text);
+    await fetchAIAnswer(text);
+}
 
-    document.getElementById("attachBtn").onclick = () => fileInput.click();
-
-    fileInput.onchange = async () => {
-      if (!fileInput.files.length) return;
-      const loadRow = addMsg("PDF уншиж байна...", "bot");
-      setLoading(true);
-      const fd = new FormData();
-      for (const f of fileInput.files) fd.append("file", f);
-      fileInput.value = "";
-      try {
-        const res = await fetch("/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        chatMessages.removeChild(loadRow);
-        if (data.success) {
-          hasPdf = true;
-          pdfBadge.classList.remove("hidden");
-          addMsg("✅ Амжилттай. " + data.chunks + " хуудас өгөгдөл нэмэгдлээ.", "bot");
-        } else {
-          addMsg("❌ " + (data.error || "Файл уншихад алдаа гарлаа."), "bot");
-        }
-      } catch (e) {
-        chatMessages.removeChild(loadRow);
-        addMsg("❌ Файл илгээхэд алдаа гарлаа.", "bot");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    document.getElementById("todayDate").textContent =
-      new Date().toLocaleDateString("mn-MN", { year: "numeric", month: "long", day: "numeric" });
+sendBtn.addEventListener("click", () => sendMessage());
+chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+});
   </script>
 </body>
 </html>

@@ -1,86 +1,81 @@
 import os
 import markdown
 import anthropic
-from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
-from PyPDF2 import PdfReader
+from pinecone import Pinecone
+from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
 
 load_dotenv()
+
 app = Flask(__name__)
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+# ТОХИРГОО
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
+PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
+INDEX_NAME    = "muis-chatbot"
 
-pdf_context = ""
+claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+pc = Pinecone(api_key=PINECONE_KEY)
+index = pc.Index(INDEX_NAME)
+embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-SYSTEM_PROMPT = """Та МУИС (Монгол Улсын Их Сургууль)-ийн оюутнуудад зориулсан дижитал туслах юм.
-Монгол хэлээр товч, тодорхой, найрсаг байдлаар хариулна уу.
-Хэрэв PDF мэдээлэл өгөгдсөн бол түүнийг үндэслэн хариулна уу.
-Мэдэхгүй зүйлийг таамаглахгүй, шударгаар хэлнэ үү."""
+def search_context(query: str, top_k: int = 10) -> str:
+    try:
+        query_embedding = embedder.encode(query).tolist()
+        results = index.query(
+            vector=query_embedding,
+            top_k=top_k,
+            include_metadata=True
+        )
+        return "\n\n".join([m["metadata"].get("text", "") for m in results["matches"]])
+    except:
+        return ""
+
+def build_system_prompt(context: str, user_query: str) -> str:
+    return f"""Та бол МУИС-ийн оюутны туслах чатбот юм. 
+
+ХЭРЭГЛЭГЧИЙН ХАЙЛТ: {user_query}
+
+ДҮРЭМ:
+1. Хэрэв баримт бичигт тухайн нэрээр ЗӨВХӨН 1 ХҮН олдвол түүний бүх мэдээллийг (Овог нэр, Тэнхим, Албан тушаал, Боловсрол, Имэйл) шууд дэлгэрэнгүй харуул.
+2. Хэрэв 2 БОЛОН ТҮҮНЭЭС ДЭЭШ хүн олдвол:
+   - Хэнийх нь ч дэлгэрэнгүй мэдээллийг (имейл, боловсрол г.м) БИТГИЙ харуул.
+   - Зөвхөн "Таны хайлтаар [Тоо] хүн олдлоо. Та алийг нь хайж байна вэ?" гэж асуу.
+   - Сонголт бүрт зөвхөн Овог, Нэр, Тэнхимийг нь дугаарлан жагсааж харуул.
+3. Хэрэглэгч дугаар эсвэл тодорхой нэрийг сонгож хэлэх хүртэл дэлгэрэнгүй мэдээллийг нууцлах ёстой.
+4. Мэдээлэл байхгүй бол "Уучлаарай, мэдээлэл алга." гэж хариулна.
+5. Хариултыг Монгол хэлээр маш товч бөгөөд цэгцтэй бичнэ.
+
+БАРИМТ БИЧИГ:
+{context}"""
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
-
-@app.route("/upload", methods=["POST"])
-def upload():
-    global pdf_context
-    files = request.files.getlist("file")
-    if not files:
-        return jsonify({"success": False, "error": "Файл олдсонгүй"}), 400
-
-    extracted_text = ""
-    chunk_count = 0
-
-    for f in files:
-        try:
-            reader = PdfReader(f)
-            for page in reader.pages:
-                text = page.extract_text()
-                if text:
-                    extracted_text += text + "\n"
-                    chunk_count += 1
-        except Exception as e:
-            return jsonify({"success": False, "error": f"Файл уншихад алдаа: {str(e)}"}), 500
-
-    pdf_context = extracted_text
-    return jsonify({"success": True, "chunks": chunk_count})
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    global pdf_context
     data = request.json
-    user_msg = data.get("message", "").strip()
+    user_message = data.get("message", "")
     history = data.get("history", [])
 
-    if not user_msg:
-        return jsonify({"error": "Хоосон мессеж"}), 400
-
-    # Build system prompt — append PDF context only if available
-    system = SYSTEM_PROMPT
-    if pdf_context:
-        system += f"\n\nНэмэлт мэдээлэл (PDF):\n{pdf_context[:15000]}"
-
-    # Keep last 10 turns (20 messages) to stay within context limits
-    messages = []
-    for h in history[-20:]:
-        role = h.get("role")
-        content = h.get("content", "")
-        if role in ("user", "assistant") and content:
-            messages.append({"role": role, "content": content})
-    messages.append({"role": "user", "content": user_msg})
-
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-5",
-            max_tokens=1024,
-            system=system,
-            messages=messages,
+        context = search_context(user_message)
+        messages = [{"role": msg["role"], "content": msg["content"]} for msg in history[-5:]]
+        messages.append({"role": "user", "content": user_message})
+
+        response = claude.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1000,
+            system=build_system_prompt(context, user_message),
+            messages=messages
         )
-        answer_md = response.content[0].text
-        answer_html = markdown.markdown(answer_md)
-        return jsonify({"answer": answer_html})
-    except anthropic.APIError as e:
-        return jsonify({"error": f"API алдаа: {str(e)}"}), 502
+        
+        formatted_reply = markdown.markdown(response.content[0].text)
+        return jsonify({"answer": formatted_reply})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
