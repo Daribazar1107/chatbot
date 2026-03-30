@@ -1,6 +1,11 @@
-import os
-import markdown
-import anthropic
+"""
+app.py — МУИС chatbot Flask backend
+
+Embedder: paraphrase-multilingual-mpnet-base-v2 (Монгол хэлд тохирсон)
+Model:    claude-haiku-4-5-20251001
+"""
+
+import os, markdown, anthropic
 from flask import Flask, render_template, request, jsonify
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
@@ -14,68 +19,122 @@ app = Flask(__name__)
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
 PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
 INDEX_NAME    = "muis-chatbot"
+EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"  # ingest.py-тэй ИЖИЛ байх ёстой
 
-claude   = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-pc       = Pinecone(api_key=PINECONE_KEY)
-index    = pc.Index(INDEX_NAME)
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+# Монгол хэлний синоним — хайлтыг баяжуулна
+MN_SYNONYMS = {
+    "кредит":    "багц цаг кредит",
+    "курс":      "түвшин курс дугаар",
+    "хэддүгээр": "дугаар түвшин",
+    "голч":      "голч дүн оноо GPA",
+    "дүн":       "үнэлгээ дүн оноо тэмдэглэгээ",
+    "чөлөө":     "чөлөө авах суралцагч журам",
+    "хасах":     "сургуулиас хасах шалтгаан",
+    "төлбөр":    "сургалтын төлбөр хураамж",
+    "шалгалт":   "шалгалт явцын улирлын",
+    "бүртгэл":   "хичээл бүртгүүлэх сонгох",
+    "тэтгэлэг":  "тэтгэлэг зээл санхүүгийн дэмжлэг",
+    "төгсөлт":   "төгсөлт дүүргэх шаардлага диплом",
+    "дадлага":   "дадлага мэргэжлийн магистр",
+}
 
-# ── ХАЙЛТ ───────────────────────────────────────────────
-def search_context(query: str, top_k: int = 10) -> list[dict]:
-    """Pinecone-ээс хамааралтай chunk-уудыг score-тэй хамт буцаана."""
+# Хайлтыг хүчитгэх түлхүүр үгс
+BOOST_KEYWORDS = {
+    "W", "WF", "NR", "NA", "CA", "CR", "RC", "GPA",
+    "ГОЛЧ", "ҮНЭЛГЭЭ", "ТЭМДЭГЛЭГЭЭ", "КРЕДИТ", "БАГЦ",
+    "ТҮВШИН", "КУРС", "ХАСАХ", "ЧӨЛӨӨ", "ТӨГСӨЛТ",
+}
+
+# ── КЛИЕНТҮҮД (нэг удаа ачаална) ────────────────────────
+print(f"🔧 Embedder ачааллаж байна: {EMBED_MODEL}")
+embedder = SentenceTransformer(EMBED_MODEL)
+print("✅ Embedder бэлэн.")
+
+claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+pc     = Pinecone(api_key=PINECONE_KEY)
+index  = pc.Index(INDEX_NAME)
+
+# ── RAG ХАЙЛТ ───────────────────────────────────────────
+def expand_query(query: str) -> str:
+    """Монгол синонимоор асуултыг баяжуулна."""
+    q_lower = query.lower()
+    extras  = []
+    for mn, exp in MN_SYNONYMS.items():
+        if mn in q_lower:
+            extras.append(exp)
+    if extras:
+        return f"{query} {' '.join(extras)}"
+    return query
+
+
+def search_context(query: str, top_k: int = 12) -> list[dict]:
+    """Pinecone-ээс хамааралтай chunk хайна."""
     try:
-        vec     = embedder.encode(query).tolist()
-        results = index.query(vector=vec, top_k=top_k, include_metadata=True)
+        if any(kw in query.upper() for kw in BOOST_KEYWORDS):
+            top_k = 20
+
+        expanded = expand_query(query)
+        vector   = embedder.encode(expanded).tolist()
+
+        results = index.query(
+            vector=vector,
+            top_k=top_k,
+            include_metadata=True,
+        )
+
         matches = []
         for m in results["matches"]:
             score = m.get("score", 0)
-            if score < 0.25:   # хамааралгүй chunk хасна
+            if score < 0.10:
                 continue
+            meta = m.get("metadata", {})
             matches.append({
-                "text":   m["metadata"].get("text", ""),
-                "source": m["metadata"].get("source", ""),
+                "text":   meta.get("text", ""),
+                "source": meta.get("source", "МУИС-ийн баримт бичиг"),
                 "score":  round(score, 3),
             })
+
         return matches
+
     except Exception as e:
-        print(f"Search error: {e}")
+        print(f"❌ Search error: {e}")
         return []
 
 
 def build_context_block(matches: list[dict]) -> str:
-    """Chunk-уудыг эх сурвалжтай нь нэгтгэж систем промт руу оруулна."""
+    """Chunk-уудыг эх сурвалжтай нэгтгэнэ."""
     if not matches:
         return ""
     parts = []
     for m in matches:
-        parts.append(f"[Эх сурвалж: {m['source']}]\n{m['text']}")
+        parts.append(f"[{m['source']}]\n{m['text']}")
     return "\n\n---\n\n".join(parts)
 
-
 # ── СИСТЕМ ПРОМТ ────────────────────────────────────────
-def build_system_prompt(context: str, user_query: str) -> str:
-    if not context:
-        return """Та МУИС-ийн оюутны туслах чатбот юм.
-Одоогоор мэдээллийн санд холбогдсон баримт бичиг байхгүй байна.
-Монгол хэлээр хариулна уу."""
+SYSTEM_BASE = """Та бол МУИС-ийн "МУИС-Туслах" чатбот юм.
 
-    return f"""Та МУИС-ийн оюутны туслах чатбот юм. Доор өгсөн баримт бичгийн мэдээлэлд тулгуурлан хариулна уу.
+ХЭЛНИЙ ЗААВАР:
+- Хэрэглэгч Монгол хэлний АЛИВАА хэлбэрээр асуусан байсан утгаар нь ойлго.
+- "кредит" = "багц цаг", "курс" = "түвшин", "хэддүгээр" = "дугаар түвшин",
+  "голч" = "голч дүн / GPA", "дүн" = "үнэлгээ", "хасах" = "сургуулиас хасах"
+- Үг яг таарахгүй байсан ч утгаар нь хариул.
 
-═══════════════════════════════
-ХЭРЭГЛЭГЧИЙН АСУУЛТ: {user_query}
-═══════════════════════════════
+АЖИЛЛАХ ДҮРЭМ:
+1. Зөвхөн доор өгсөн КОНТЕКСТ-ийн мэдээллийг ашигла.
+2. Контекстэд байхгүй мэдээллийг өөрийн мэдлэгээр нэмж хэлэхийг ХОРИГЛОНО.
+3. Хариулт контекстэд байхгүй бол:
+   "Уучлаарай, миний мэдээллийн санд энэ тухай мэдээлэл байхгүй байна." гэж хариул.
+4. Үсгэн тэмдэглэгээ (W, WF, I, R, F, CA, NR, NA, CR, RC гэх мэт) асуувал
+   тус бүрийн тайлбарыг дэлгэрэнгүй өг.
+5. Тоон мэдээлэл (багц цаг, түвшин, хувь) яг зөв дамжуул.
+6. Монгол хэлээр товч, цэгцтэй хариул.
+7. "Багшаар уулз", "захиргаанд ханд" гэх мэт ерөнхий зөвлөгөө өгөхгүй —
+   контекстэд байгаа тодорхой мэдээллийг л хэлэх."""
 
-ДҮРЭМ:
-1. Зөвхөн доор өгсөн БАРИМТ БИЧГИЙН мэдээллээр хариулна. Өөрийн мэдлэгийг нэмж болохгүй.
-2. Хариулт баримт бичигт байгаа бол ДЭЛГЭРЭНГҮЙ, ОЙЛГОМЖТОЙгоор тайлбарлана.
-3. Хэрэв олон хүн/зүйл олдвол жагсааж харуулаад "Алийг нь дэлгэрэнгүй мэдэхийг хүсэж байна вэ?" гэж асуу.
-4. Баримт бичигт хариулт БАЙХГҮЙ бол: "Уучлаарай, энэ мэдээлэл баримт бичигт байхгүй байна." гэж хариулна.
-5. Хариултыг Монгол хэлээр цэгцтэй, товч бөгөөд бүрэн бичнэ.
-6. Тоо, огноо, нэр зэрэг баримтуудыг ЯНДАРГҮЙ оруулна.
 
-БАРИМТ БИЧИГ:
-{context}"""
-
+def build_system_prompt(context: str) -> str:
+    ctx = context if context else "Мэдээллийн санд холбогдох баримт олдсонгүй."
+    return f"{SYSTEM_BASE}\n\nКОНТЕКСТ:\n{ctx}"
 
 # ── ROUTE-УУД ───────────────────────────────────────────
 @app.route("/")
@@ -85,7 +144,7 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data         = request.json
+    data         = request.json or {}
     user_message = data.get("message", "").strip()
     history      = data.get("history", [])
 
@@ -93,71 +152,70 @@ def chat():
         return jsonify({"error": "Хоосон асуулт"}), 400
 
     try:
-        # 1. Pinecone-ээс хамааралтай мэдээлэл хайна
-        matches = search_context(user_message)
-        context = build_context_block(matches)
+        # 1. RAG хайлт
+        matches      = search_context(user_message)
+        context_text = build_context_block(matches)
 
-        # 2. Яриын түүхийг бэлдэнэ (сүүлийн 6 мессеж)
+        # 2. Яриын түүх (сүүлийн 6 мессеж)
         messages = []
-        for msg in history[-6:]:
-            if msg.get("role") in ("user", "assistant") and msg.get("content"):
-                messages.append({
-                    "role":    msg["role"],
-                    "content": msg["content"],
-                })
+        for m in history[-6:]:
+            role    = m.get("role", "")
+            content = m.get("content", "")
+            if role in ("user", "assistant") and content:
+                messages.append({"role": role, "content": content})
         messages.append({"role": "user", "content": user_message})
 
-        # 3. Claude-д дуудна
+        # 3. Claude дуудах
         response = claude.messages.create(
-            model      = "claude-haiku-4-5-20251001",
-            max_tokens = 1500,
-            system     = build_system_prompt(context, user_message),
-            messages   = messages,
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1500,
+            temperature=0,
+            system=build_system_prompt(context_text),
+            messages=messages,
         )
 
-        raw_text       = response.content[0].text
-        formatted_html = markdown.markdown(
+        raw_text  = response.content[0].text
+        html_text = markdown.markdown(
             raw_text,
-            extensions=["tables", "nl2br"],
+            extensions=["tables", "nl2br", "fenced_code"],
         )
 
-        # Эх сурвалжийн мэдээллийг хариулттай хамт буцаана (debug)
-        sources = list({m["source"] for m in matches}) if matches else []
+        sources = list({m["source"] for m in matches})
 
         return jsonify({
-            "answer":  formatted_html,
+            "answer":  html_text,
             "sources": sources,
         })
 
     except anthropic.APIStatusError as e:
         code = e.status_code
         if code == 429:
-            return jsonify({"error": "⏳ Хэтэрхий олон хүсэлт. Хэсэг хүлээгээд дахин оролдоно уу."}), 429
+            msg = "⏳ Хэтэрхий олон хүсэлт. Хэсэг хүлээгээд дахин оролдоно уу."
         elif code == 401:
-            return jsonify({"error": "❌ Claude API key буруу байна."}), 401
+            msg = "❌ Claude API key буруу байна."
+        elif code == 529:
+            msg = "❌ Claude сервер ачаалалтай байна. Дахин оролдоно уу."
         else:
-            return jsonify({"error": f"❌ Claude алдаа ({code})"}), 500
+            msg = f"❌ Claude алдаа ({code})"
+        return jsonify({"error": msg}), 500
 
     except Exception as e:
-        print(f"Chat error: {e}")
-        return jsonify({"error": f"❌ Алдаа: {str(e)}"}), 500
+        print(f"❌ Chat error: {e}")
+        return jsonify({"error": f"Алдаа гарлаа: {str(e)}"}), 500
 
 
-@app.route("/reload", methods=["POST"])
-def reload():
-    """data/ хавтасны файлуудыг дахин индексжүүлнэ."""
+@app.route("/health")
+def health():
+    """Серверийн байдал шалгах endpoint."""
     try:
-        import subprocess
-        result = subprocess.run(
-            ["python", "ingest.py"],
-            capture_output=True, text=True, timeout=300,
-        )
-        if result.returncode == 0:
-            return jsonify({"success": True, "log": result.stdout})
-        else:
-            return jsonify({"success": False, "log": result.stderr}), 500
+        stats = index.describe_index_stats()
+        return jsonify({
+            "status":       "ok",
+            "vector_count": stats.total_vector_count,
+            "embed_model":  EMBED_MODEL,
+        })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"status": "error", "detail": str(e)}), 500
 
 
 if __name__ == "__main__":

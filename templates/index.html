@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Нэгдсэн хандалтын орчин</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Segoe UI", Arial, sans-serif; background: #f3f6fb; color: #23314f; overflow: hidden; height: 100vh; }
 
-    /* ── TOPBAR ── */
     .topbar { height: 52px; background: linear-gradient(90deg, #1a4fa0, #3a9de0); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: white; }
     .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; }
     .grid-icon { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 18px; cursor: pointer; }
@@ -17,10 +17,8 @@
     .notif-icon { font-size: 19px; cursor: pointer; opacity: 0.9; }
     .top-avatar { width: 36px; height: 36px; border-radius: 50%; background: #c8d8f0; cursor: pointer; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-    /* ── LAYOUT ── */
     .layout { display: grid; grid-template-columns: 220px 1fr 360px; height: calc(100vh - 52px); }
 
-    /* ── SIDEBAR ── */
     .sidebar { background: #fff; border-right: 1px solid #dde4f0; display: flex; flex-direction: column; overflow-y: auto; }
     .sidebar-profile { display: flex; align-items: center; gap: 12px; padding: 18px 16px 16px; border-bottom: 1px solid #edf1f7; }
     .profile-avatar { width: 46px; height: 46px; border-radius: 50%; background: #c8d8f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
@@ -32,7 +30,6 @@
     .nav-item.active { color: #1a4fa0; font-weight: 600; background: #f0f5ff; border-left-color: #1a4fa0; }
     .nav-icon { font-size: 18px; width: 22px; text-align: center; opacity: 0.8; }
 
-    /* ── MAIN ── */
     .main { overflow-y: auto; background: #f3f6fb; }
     .main-header { padding: 18px 28px 14px; border-bottom: 1px solid #dde4f0; background: #fff; }
     .main-title { font-size: 19px; font-weight: 700; color: #1a2744; margin-bottom: 3px; }
@@ -47,7 +44,6 @@
     .card-title { font-size: 15px; font-weight: 700; color: #1a2744; margin-bottom: 4px; }
     .card-desc { font-size: 12px; color: #7a88a0; line-height: 1.4; }
 
-    /* ── RIGHT PANEL ── */
     .right-panel { background: #fff; border-left: 1px solid #dde4f0; display: flex; flex-direction: column; overflow: hidden; }
     .news-section { padding: 16px 18px; border-bottom: 1px solid #edf1f7; }
     .panel-section-title { font-size: 13px; font-weight: 600; color: #8a96ad; margin-bottom: 12px; }
@@ -67,52 +63,246 @@
     .schedule-item-title { font-size: 13px; font-weight: 700; color: #1a2744; margin-bottom: 4px; line-height: 1.4; }
     .schedule-item-date { font-size: 12px; color: #8a96ad; }
 
-    /* ── CHATBOT OVERLAY ── */
-    .chatbot-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.28); display: none; align-items: center; justify-content: center; z-index: 999; padding: 18px; }
-    .chatbot-overlay.active { display: flex; }
-    .chatbot-modal { width: min(1100px, 96vw); height: min(820px, 94vh); background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 60px rgba(15,23,42,0.22); display: flex; flex-direction: column; }
-    .chatbot-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 14px; border-bottom: 1px solid #edf1f7; }
-    .chat-brand { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; color: #111827; }
-    .chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #d6e7ff 35%, #6ca3ef 70%, #2c5bb3 100%); box-shadow: 0 4px 10px rgba(44,91,179,0.22); flex-shrink: 0; }
-    .chat-controls { display: flex; gap: 8px; }
-    .chat-control-btn { border: none; background: #f4f6fa; font-size: 16px; cursor: pointer; color: #111827; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-    .chat-control-btn:hover { background: #e8ecf5; }
-    .chatbot-body { flex: 1; padding: 12px 24px 18px; display: flex; flex-direction: column; overflow: hidden; }
-    .chat-center { max-width: 600px; width: 100%; margin: 0 auto; padding-top: 28px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .chat-date { color: #79829a; font-size: 13px; margin-bottom: 10px; }
-    .chat-welcome { font-size: 30px; font-weight: 700; color: #111827; margin-bottom: 28px; }
-    .quick-list { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-    .quick-item { width: 100%; background: #edf4ff; border: none; border-radius: 999px; padding: 14px 22px; text-align: left; font-size: 14px; color: #2f5eb7; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-family: inherit; }
-    .quick-item:hover { background: #dceeff; }
-    .pdf-badge { font-size: 12px; color: #2f5eb7; background: #edf4ff; border-radius: 999px; padding: 4px 12px; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; }
-    .chat-bottom { max-width: 860px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; flex: 1; min-height: 0; padding-top: 8px; }
-    .messages { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; padding: 4px 4px 8px; flex: 1; min-height: 0; }
+    /* ═══════════════════════════════════════════
+       CHATBOT — Premium redesign
+    ═══════════════════════════════════════════ */
+    .chatbot-overlay {
+      position: fixed; inset: 0;
+      background: rgba(10, 18, 40, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 999; padding: 18px;
+    }
+    .chatbot-overlay.active { display: flex; animation: overlayIn 0.25s ease; }
+    @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .chatbot-modal {
+      width: min(1000px, 96vw);
+      height: min(800px, 94vh);
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(10,18,40,0.28), 0 0 0 1px rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(16px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+    /* Header */
+    .chatbot-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #1a4fa0 0%, #2563c4 50%, #3a9de0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .chatbot-header::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .chat-brand { display: flex; align-items: center; gap: 12px; position: relative; }
+    .chat-avatar-wrap {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .chat-brand-name { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .chat-brand-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+    .chat-status { display: flex; align-items: center; gap: 5px; margin-top: 3px; }
+    .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+    .chat-status-text { font-size: 11px; color: rgba(255,255,255,0.75); }
+    .chat-controls { display: flex; gap: 6px; position: relative; }
+    .chat-control-btn {
+      border: none; background: rgba(255,255,255,0.15); font-size: 14px;
+      cursor: pointer; color: #fff; width: 32px; height: 32px;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .chat-control-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* Body */
+    .chatbot-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f8faff; }
+
+    /* Intro */
+    .chat-center {
+      max-width: 560px; width: 100%; margin: 0 auto;
+      padding: 40px 24px 24px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .chat-intro-icon {
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, #1a4fa0, #3a9de0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(26,79,160,0.3);
+    }
+    .chat-date { color: #8a96ad; font-size: 12px; margin-bottom: 8px; letter-spacing: 0.3px; }
+    .chat-welcome { font-size: 26px; font-weight: 700; color: #1a2744; margin-bottom: 6px; }
+    .chat-welcome-sub { font-size: 13px; color: #7a88a0; margin-bottom: 28px; line-height: 1.6; }
+    .quick-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    .quick-item {
+      width: 100%; background: #fff; border: 1px solid #dde4f0;
+      border-radius: 12px; padding: 12px 18px;
+      text-align: left; font-size: 13px; color: #1a4fa0;
+      cursor: pointer; display: flex; align-items: center; gap: 10px;
+      transition: all 0.2s; font-family: inherit;
+      box-shadow: 0 1px 4px rgba(26,79,160,0.06);
+    }
+    .quick-item:hover { background: #eef3ff; border-color: #b5cef0; transform: translateX(3px); }
+    .quick-item-icon { width: 28px; height: 28px; border-radius: 8px; background: #eef3ff; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+    /* Chat area */
+    .chat-bottom {
+      max-width: 860px; width: 100%; margin: 0 auto;
+      display: flex; flex-direction: column; flex: 1; min-height: 0;
+      padding: 8px 24px 0;
+    }
+    .messages {
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto; padding: 8px 0 12px; flex: 1; min-height: 0;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: #d0d9ea; border-radius: 4px; }
+
+    /* User bubble */
     .msg-row { display: flex; width: 100%; }
     .msg-row.user { justify-content: flex-end; }
-    .msg-row.bot { justify-content: flex-start; align-items: flex-start; gap: 8px; }
-    .bot-avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #d6e7ff 35%, #6ca3ef 70%, #2c5bb3 100%); flex-shrink: 0; margin-top: 4px; }
-    .msg { max-width: 76%; padding: 11px 16px; border-radius: 16px; line-height: 1.55; font-size: 14px; }
-    .msg.user { background: #2f5eb7; color: #fff; border-bottom-right-radius: 4px; }
-    .msg.bot { background: #f2f4f7; color: #24324a; border-bottom-left-radius: 4px; }
-    .msg.bot p { margin-bottom: 6px; }
-    .msg.bot p:last-child { margin-bottom: 0; }
-    .msg.bot ul, .msg.bot ol { padding-left: 16px; margin-bottom: 6px; }
-    .msg.bot code { background: #e4e9f0; padding: 1px 4px; border-radius: 4px; font-size: 12px; }
-    .typing { display: flex; gap: 5px; padding: 6px 4px; }
-    .typing span { width: 7px; height: 7px; border-radius: 50%; background: #9aa5bb; animation: bounce 1.2s infinite; }
+    .msg.user {
+      background: linear-gradient(135deg, #2563c4, #1a4fa0);
+      color: #fff; border-radius: 16px 16px 4px 16px;
+      padding: 10px 16px; font-size: 13px; line-height: 1.6;
+      max-width: 65%; box-shadow: 0 2px 12px rgba(26,79,160,0.25);
+      animation: msgIn 0.25s cubic-bezier(0.34,1.3,0.64,1);
+    }
+
+    /* Bot bubble */
+    .msg-row.bot { justify-content: flex-start; flex-direction: column; gap: 0; }
+
+    .bot-bubble-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px 7px;
+      background: linear-gradient(135deg, #eef3ff, #e6f0ff);
+      border: 1px solid #d0dff5; border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      width: fit-content; max-width: 82%;
+    }
+    .bot-avatar-sm {
+      width: 24px; height: 24px; border-radius: 7px;
+      background: linear-gradient(135deg, #1a4fa0, #3a9de0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .bot-name { font-size: 11px; font-weight: 700; color: #1a4fa0; letter-spacing: 0.3px; }
+
+    .msg.bot {
+      background: #ffffff;
+      color: #24324a;
+      border-radius: 0 14px 14px 14px;
+      border: 1px solid #d0dff5;
+      padding: 14px 18px;
+      width: fit-content; max-width: 82%;
+      box-shadow: 0 2px 12px rgba(26,79,160,0.07);
+      animation: msgIn 0.25s cubic-bezier(0.34,1.3,0.64,1);
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Rich content */
+    .bot-rich { font-size: 13px; line-height: 1.72; color: #24324a; }
+    .bot-rich h1,.bot-rich h2,.bot-rich h3 {
+      font-size: 13px; font-weight: 700; color: #1a2744;
+      margin: 12px 0 5px; padding-bottom: 5px;
+      border-bottom: 1px solid #e4ecf7;
+    }
+    .bot-rich h1:first-child,.bot-rich h2:first-child,.bot-rich h3:first-child { margin-top: 0; }
+    .bot-rich p { font-size: 13px; margin-bottom: 5px; }
+    .bot-rich p:last-child { margin-bottom: 0; }
+    .bot-rich strong { color: #1a4fa0; font-weight: 600; }
+    .bot-rich em { color: #5a7090; font-style: italic; }
+    .bot-rich ul,.bot-rich ol { padding-left: 18px; margin: 4px 0 6px; }
+    .bot-rich li { font-size: 13px; margin-bottom: 4px; line-height: 1.65; }
+    .bot-rich hr { border: none; border-top: 1px solid #e4ecf7; margin: 8px 0; }
+    .bot-rich code { background: #eef3ff; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #2563c4; }
+    .bot-rich blockquote {
+      border-left: 3px solid #3a9de0; padding: 6px 12px;
+      margin: 8px 0; background: #f0f6ff;
+      border-radius: 0 8px 8px 0; font-size: 12px; color: #4a6fa0;
+    }
+    .bot-rich table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0; border-radius: 8px; overflow: hidden; }
+    .bot-rich th { background: #eef3ff; color: #1a4fa0; font-weight: 600; padding: 7px 12px; border: 1px solid #d0dff5; text-align: left; }
+    .bot-rich td { padding: 6px 12px; border: 1px solid #e4ecf7; color: #344054; }
+    .bot-rich tr:nth-child(even) td { background: #f8faff; }
+
+    /* Typing */
+    .typing-row { display: flex; flex-direction: column; gap: 0; }
+    .typing-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px 7px;
+      background: linear-gradient(135deg, #eef3ff, #e6f0ff);
+      border: 1px solid #d0dff5; border-bottom: none;
+      border-radius: 14px 14px 0 0; width: fit-content;
+    }
+    .typing-bubble {
+      background: #fff; border: 1px solid #d0dff5;
+      border-radius: 0 14px 14px 14px;
+      padding: 12px 18px; width: fit-content;
+      box-shadow: 0 2px 12px rgba(26,79,160,0.07);
+    }
+    .typing { display: flex; gap: 5px; align-items: center; }
+    .typing span { width: 7px; height: 7px; border-radius: 50%; background: #a0b0cc; animation: bounce 1.2s infinite; }
     .typing span:nth-child(2) { animation-delay: 0.2s; }
     .typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
-    .input-area { padding-top: 10px; }
-    .input-row { display: flex; align-items: center; gap: 8px; background: #f6f7f9; border-radius: 999px; padding: 7px 8px 7px 18px; border: 1.5px solid #e4e8f0; transition: border-color 0.2s; }
-    .input-row:focus-within { border-color: #4a80dd; background: #fff; }
-    .chat-input { flex: 1; border: none; outline: none; background: transparent; font-size: 14px; color: #344054; font-family: inherit; }
-    .chat-input::placeholder { color: #a0a9be; }
-    .tool-btn { border: none; background: transparent; font-size: 19px; color: #8a95ad; cursor: pointer; padding: 3px; border-radius: 6px; transition: color 0.15s; }
-    .tool-btn:hover { color: #4a80dd; }
-    .send-btn { width: 40px; height: 40px; border: none; border-radius: 50%; background: linear-gradient(160deg, #4d86dd, #2b5db3); color: #fff; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(43,93,179,0.28); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s, transform 0.15s; }
-    .send-btn:hover { opacity: 0.9; transform: scale(1.05); }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
+
+    /* Source tag */
+    .source-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; color: #6a85b0;
+      background: #f0f5ff; border: 1px solid #d0dff5;
+      border-radius: 20px; padding: 3px 10px; margin-top: 8px;
+    }
+
+    /* Input */
+    .input-area { padding: 12px 24px 16px; background: #f8faff; border-top: 1px solid #e4ecf7; }
+    .input-row {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border-radius: 14px;
+      padding: 8px 8px 8px 18px;
+      border: 1.5px solid #d0dff5;
+      box-shadow: 0 2px 8px rgba(26,79,160,0.06);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-row:focus-within {
+      border-color: #3a9de0;
+      box-shadow: 0 0 0 3px rgba(58,157,224,0.12), 0 2px 8px rgba(26,79,160,0.08);
+    }
+    .chat-input { flex: 1; border: none; outline: none; background: transparent; font-size: 13px; color: #1a2744; font-family: inherit; }
+    .chat-input::placeholder { color: #a0aec0; }
+    .tool-btn { border: none; background: transparent; font-size: 18px; color: #8a9ab5; cursor: pointer; padding: 4px; border-radius: 8px; transition: color 0.15s, background 0.15s; }
+    .tool-btn:hover { color: #1a4fa0; background: #eef3ff; }
+    .send-btn {
+      width: 38px; height: 38px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #2563c4, #1a4fa0);
+      color: #fff; font-size: 15px; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(26,79,160,0.3);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+    }
+    .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(26,79,160,0.4); }
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .send-btn svg { width: 16px; height: 16px; fill: white; }
+
     .hidden { display: none !important; }
 
     @media (max-width: 900px) {
@@ -124,7 +314,6 @@
 </head>
 <body>
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
       <div class="grid-icon"><span></span><span></span><span></span><span></span></div>
@@ -137,8 +326,6 @@
   </div>
 
   <div class="layout">
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-profile">
         <div class="profile-avatar">👤</div>
@@ -159,108 +346,59 @@
       </nav>
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
       <div class="main-header">
         <div class="main-title">Мэдээллийн технологи</div>
         <div class="main-subtitle">Мэдээллийн технологи, электроникийн сургууль</div>
       </div>
       <div class="main-body">
-
         <div class="section-label">Сургалт, судалгаа</div>
         <div class="cards">
           <div class="card">
             <div class="card-icon" style="background:#eef3ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <rect x="2" y="2" width="16" height="16" rx="3" fill="#4a7ee0"/>
-                <rect x="22" y="2" width="16" height="16" rx="3" fill="#7ab0f5"/>
-                <rect x="2" y="22" width="16" height="16" rx="3" fill="#7ab0f5"/>
-                <rect x="22" y="22" width="16" height="16" rx="3" fill="#4a7ee0"/>
-              </svg>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="2" y="2" width="16" height="16" rx="3" fill="#4a7ee0"/><rect x="22" y="2" width="16" height="16" rx="3" fill="#7ab0f5"/><rect x="2" y="22" width="16" height="16" rx="3" fill="#7ab0f5"/><rect x="22" y="22" width="16" height="16" rx="3" fill="#4a7ee0"/></svg>
             </div>
-            <div>
-              <div class="card-title">SISi</div>
-              <div class="card-desc">Сургалт удирдлагын мэдээллийн систем</div>
-            </div>
+            <div><div class="card-title">SISi</div><div class="card-desc">Сургалт удирдлагын мэдээллийн систем</div></div>
           </div>
           <div class="card">
             <div class="card-icon" style="background:#e8f4ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <rect x="4" y="6" width="10" height="28" rx="2" fill="#3a9de0"/>
-                <rect x="16" y="6" width="10" height="28" rx="2" fill="#5bb3f0"/>
-                <rect x="28" y="6" width="8" height="28" rx="2" fill="#3a9de0"/>
-              </svg>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="4" y="6" width="10" height="28" rx="2" fill="#3a9de0"/><rect x="16" y="6" width="10" height="28" rx="2" fill="#5bb3f0"/><rect x="28" y="6" width="8" height="28" rx="2" fill="#3a9de0"/></svg>
             </div>
-            <div>
-              <div class="card-title">Koha</div>
-              <div class="card-desc">Номын сангийн мэдээллийн систем</div>
-            </div>
+            <div><div class="card-title">Koha</div><div class="card-desc">Номын сангийн мэдээллийн систем</div></div>
           </div>
           <div class="card">
             <div class="card-icon" style="background:#fff7e6;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <rect x="4" y="8" width="12" height="24" rx="2" fill="#f5a623"/>
-                <rect x="18" y="4" width="12" height="28" rx="2" fill="#e8920a"/>
-                <rect x="10" y="12" width="12" height="20" rx="2" fill="#fbbf24"/>
-              </svg>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="4" y="8" width="12" height="24" rx="2" fill="#f5a623"/><rect x="18" y="4" width="12" height="28" rx="2" fill="#e8920a"/><rect x="10" y="12" width="12" height="20" rx="2" fill="#fbbf24"/></svg>
             </div>
-            <div>
-              <div class="card-title">Koha</div>
-              <div class="card-desc">Цахим номын сан</div>
-            </div>
+            <div><div class="card-title">Koha</div><div class="card-desc">Цахим номын сан</div></div>
           </div>
           <div class="card">
-            <div class="card-icon" style="background:#f4f4f4; font-size:13px; font-weight:900; color:#222; border-radius:8px; letter-spacing:-0.5px;">edX</div>
-            <div>
-              <div class="card-title">edX</div>
-              <div class="card-desc">Цахим сургалтын систем</div>
-            </div>
+            <div class="card-icon" style="background:#f4f4f4;font-size:13px;font-weight:900;color:#222;border-radius:8px;letter-spacing:-0.5px;">edX</div>
+            <div><div class="card-title">edX</div><div class="card-desc">Цахим сургалтын систем</div></div>
           </div>
-          <!-- CHATBOT CARD -->
           <div class="card" id="openChatbot">
             <div class="card-icon" style="background:#eef3ff;">🤖</div>
-            <div>
-              <div class="card-title">Чатбот</div>
-              <div class="card-desc">Дижитал туслах</div>
-            </div>
+            <div><div class="card-title">Чатбот</div><div class="card-desc">Дижитал туслах</div></div>
           </div>
         </div>
-
         <div class="section-label">Байгууллагын үйл ажиллагаа</div>
         <div class="cards two-col">
           <div class="card">
             <div class="card-icon" style="background:#fff3ec;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <circle cx="14" cy="14" r="8" fill="#f97316"/>
-                <circle cx="26" cy="14" r="8" fill="#fbbf24"/>
-                <circle cx="14" cy="26" r="8" fill="#ef4444"/>
-                <circle cx="26" cy="26" r="8" fill="#f97316"/>
-              </svg>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><circle cx="14" cy="14" r="8" fill="#f97316"/><circle cx="26" cy="14" r="8" fill="#fbbf24"/><circle cx="14" cy="26" r="8" fill="#ef4444"/><circle cx="26" cy="26" r="8" fill="#f97316"/></svg>
             </div>
-            <div>
-              <div class="card-title">NUM career</div>
-              <div class="card-desc">Карьер хөгжлийг дэмжих үйлчилгээ</div>
-            </div>
+            <div><div class="card-title">NUM career</div><div class="card-desc">Карьер хөгжлийг дэмжих үйлчилгээ</div></div>
           </div>
           <div class="card">
             <div class="card-icon" style="background:#f0f4ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-                <path d="M20 4C20 4 34 13 34 24C34 31 27 36 20 36C13 36 6 31 6 24C6 13 20 4 20 4Z" fill="#6264A7"/>
-                <path d="M20 4C20 4 6 13 6 24C6 31 13 36 20 36" fill="#464775"/>
-                <circle cx="20" cy="23" r="7" fill="white" opacity="0.2"/>
-              </svg>
+              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><path d="M20 4C20 4 34 13 34 24C34 31 27 36 20 36C13 36 6 31 6 24C6 13 20 4 20 4Z" fill="#6264A7"/><path d="M20 4C20 4 6 13 6 24C6 31 13 36 20 36" fill="#464775"/><circle cx="20" cy="23" r="7" fill="white" opacity="0.2"/></svg>
             </div>
-            <div>
-              <div class="card-title">Microsoft 365</div>
-              <div class="card-desc">Outlook, OneDrive, Teams, Calendar, Planner ...</div>
-            </div>
+            <div><div class="card-title">Microsoft 365</div><div class="card-desc">Outlook, OneDrive, Teams, Calendar, Planner ...</div></div>
           </div>
         </div>
-
       </div>
     </main>
 
-    <!-- RIGHT PANEL -->
     <aside class="right-panel">
       <div class="news-section">
         <div class="panel-section-title">Мэдээ</div>
@@ -280,62 +418,73 @@
         </div>
         <div class="week-label">∧ 8-р долоо хоног</div>
         <div class="schedule-list">
-          <div class="schedule-item">
-            <div class="schedule-item-title">Хос, хавсарга хөтөлбөрт суралцах хүсэлт гаргах</div>
-            <div class="schedule-item-date">03.01 - 03.31</div>
-          </div>
-          <div class="schedule-item">
-            <div class="schedule-item-title">Суралцагч төгсөх хүсэлт гаргах</div>
-            <div class="schedule-item-date">03.09 - 04.10</div>
-          </div>
-          <div class="schedule-item">
-            <div class="schedule-item-title">Явцын шалгалт</div>
-            <div class="schedule-item-date">03.17 - 03.28</div>
-          </div>
-          <div class="schedule-item">
-            <div class="schedule-item-title">Төгсөлтийн шалгалт бүртгэл</div>
-            <div class="schedule-item-date">03.20 - 04.05</div>
-          </div>
+          <div class="schedule-item"><div class="schedule-item-title">Хос, хавсарга хөтөлбөрт суралцах хүсэлт гаргах</div><div class="schedule-item-date">03.01 - 03.31</div></div>
+          <div class="schedule-item"><div class="schedule-item-title">Суралцагч төгсөх хүсэлт гаргах</div><div class="schedule-item-date">03.09 - 04.10</div></div>
+          <div class="schedule-item"><div class="schedule-item-title">Явцын шалгалт</div><div class="schedule-item-date">03.17 - 03.28</div></div>
+          <div class="schedule-item"><div class="schedule-item-title">Төгсөлтийн шалгалт бүртгэл</div><div class="schedule-item-date">03.20 - 04.05</div></div>
         </div>
       </div>
     </aside>
   </div>
 
-  <!-- ── CHATBOT MODAL ── -->
+  <!-- CHATBOT MODAL -->
   <div class="chatbot-overlay" id="chatbotOverlay">
     <div class="chatbot-modal">
+
+      <!-- Header -->
       <div class="chatbot-header">
         <div class="chat-brand">
-          <div class="chat-avatar"></div>
-          МУИС дижитал туслах
+          <div class="chat-avatar-wrap">🤖</div>
+          <div class="chat-brand-text">
+            <div class="chat-brand-name">МУИС дижитал туслах</div>
+            <div class="chat-status">
+              <div class="chat-status-dot"></div>
+              <span class="chat-status-text">Онлайн • Бэлэн</span>
+            </div>
+          </div>
         </div>
         <div class="chat-controls">
           <button class="chat-control-btn" id="newChat" title="Шинэ яриа">＋</button>
           <button class="chat-control-btn" id="closeChatbot" title="Хаах">✕</button>
         </div>
       </div>
+
+      <!-- Body -->
       <div class="chatbot-body">
-        <!-- Intro screen -->
+
+        <!-- Intro -->
         <div class="chat-center" id="chatIntro">
+          <div class="chat-intro-icon">🤖</div>
           <div class="chat-date" id="todayDate"></div>
           <div class="chat-welcome">Сайн байна уу 👋</div>
+          <div class="chat-welcome-sub">МУИС-ийн журам, хичээл, мэдээлэлтэй холбоотой<br>асуултад хариулахад бэлэн байна.</div>
           <div class="quick-list">
-            <button class="quick-item" data-val="Төлбөр төлөх заавар">✈ Төлбөр төлөх заавар</button>
-            <button class="quick-item" data-val="Хичээлийн хуваарь">✈ Хичээлийн хуваарь</button>
+            <button class="quick-item" data-val="Үсгэн тэмдэглэгээний тайлбар">
+              Үсгэн тэмдэглэгээ (NA, G, W, WF гэх мэт)
+            </button>
+            <button class="quick-item" data-val="Багшын мэдээлэл">
+              Голч оноо бодох 
+            </button>
+            <button class="quick-item" data-val="чөлөө , хасалт">
+              чөлөө , хасалт
+            </button>
           </div>
-          <div id="pdfBadge" class="pdf-badge hidden">📄 PDF ачааллагдсан</div>
         </div>
-        <!-- Chat area -->
+
+        <!-- Messages -->
         <div class="chat-bottom">
           <div class="messages" id="chatMessages"></div>
           <div class="input-area">
             <div class="input-row">
-              <input type="text" id="chatInput" class="chat-input" placeholder="Энд асуултаа бичээрэй..." autocomplete="off" />
-              <button class="tool-btn" id="attachBtn" title="PDF хавсаргах">📎</button>
-              <button class="send-btn" id="sendBtn">&#10148;</button>
+              <input type="text" id="chatInput" class="chat-input" placeholder="Асуултаа бичнэ үү..." autocomplete="off" />
+              <button class="tool-btn" id="attachBtn" title="Хавсаргах">📎</button>
+              <button class="send-btn" id="sendBtn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -343,169 +492,167 @@
   <input type="file" id="fileInput" accept=".pdf" multiple style="display:none" />
 
   <script>
-    // ── News slider ───────────────────────────────────────────────
-   // ── Элементүүд ──────────────────────────────────────────
-const openChatbot    = document.getElementById("openChatbot");
-const chatbotOverlay = document.getElementById("chatbotOverlay");
-const closeChatbot   = document.getElementById("closeChatbot");
-const todayDate      = document.getElementById("todayDate");
-const chatInput      = document.getElementById("chatInput");
-const sendBtn        = document.getElementById("sendBtn");
-const chatMessages   = document.getElementById("chatMessages");
-const quickItems     = document.querySelectorAll(".quick-item");
-const chatIntro      = document.getElementById("chatIntro");
+    // News data
+    const news = [
+      { title: "Даалгавар", body: "Танд \"Мэдээллийн аюулгүй байдал\" хичээл дээр шинэ даалгавар нэмэгдсэн байна. Дэлгэрэнгүйг SISi системээс шалгана уу." },
+      { title: "Явцын шалгалт", body: "03.17–03.28-ны хооронд явцын шалгалт болно. Хичээлийн хуваарьтай танилцана уу." },
+      { title: "Мэдэгдэл", body: "2025-2026 оны хаврын улиралд хос хөтөлбөрт суралцах хүсэлт гаргах хугацаа 03.31-нд дуусна." },
+    ];
+    let newsIdx = 0;
 
-// ── State ────────────────────────────────────────────────
-let introHidden = false;
-let history     = [];
-let isLoading   = false;
-
-// ── Огноо ───────────────────────────────────────────────
-function formatDateMn() {
-    const now   = new Date();
-    const year  = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day   = String(now.getDate()).padStart(2, "0");
-    return `${year} оны ${month} сарын ${day}`;
-}
-todayDate.textContent = formatDateMn();
-
-// ── Chatbot нээх/хаах ────────────────────────────────────
-openChatbot.addEventListener("click",  () => chatbotOverlay.classList.add("active"));
-closeChatbot.addEventListener("click", () => chatbotOverlay.classList.remove("active"));
-chatbotOverlay.addEventListener("click", (e) => {
-    if (e.target === chatbotOverlay) chatbotOverlay.classList.remove("active");
-});
-
-// ── Туслах функцүүд ──────────────────────────────────────
-function hideIntro() {
-    if (!introHidden) {
-        chatIntro.classList.add("hidden");
-        introHidden = true;
+    function renderNews() {
+      document.getElementById("newsTitle").textContent = news[newsIdx].title;
+      document.getElementById("newsBody").textContent  = news[newsIdx].body;
+      const dots = document.getElementById("newsDots");
+      dots.innerHTML = news.map((_, i) => `<div class="dot ${i===newsIdx?'active':''}" data-i="${i}"></div>`).join("");
+      dots.querySelectorAll(".dot").forEach(d => d.addEventListener("click", () => { newsIdx=+d.dataset.i; renderNews(); }));
     }
-}
+    document.getElementById("newsPrev").addEventListener("click", () => { newsIdx=(newsIdx-1+news.length)%news.length; renderNews(); });
+    document.getElementById("newsNext").addEventListener("click", () => { newsIdx=(newsIdx+1)%news.length; renderNews(); });
+    renderNews();
 
-function addUserBubble(text) {
-    const row = document.createElement("div");
-    row.className = "msg-row user";
-    const bubble = document.createElement("div");
-    bubble.className = "msg user";
-    bubble.textContent = text;
-    row.appendChild(bubble);
-    chatMessages.appendChild(row);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+    // Chatbot
+    const openChatbot    = document.getElementById("openChatbot");
+    const chatbotOverlay = document.getElementById("chatbotOverlay");
+    const closeChatbot   = document.getElementById("closeChatbot");
+    const newChat        = document.getElementById("newChat");
+    const todayDate      = document.getElementById("todayDate");
+    const chatInput      = document.getElementById("chatInput");
+    const sendBtn        = document.getElementById("sendBtn");
+    const chatMessages   = document.getElementById("chatMessages");
+    const quickItems     = document.querySelectorAll(".quick-item");
+    const chatIntro      = document.getElementById("chatIntro");
 
-function addBotHtml(html, actions = []) {
-    const row = document.createElement("div");
-    row.className = "msg-row bot";
-    const wrapper = document.createElement("div");
+    let introHidden = false;
+    let history     = [];
+    let isLoading   = false;
 
-    const content = document.createElement("div");
-    content.innerHTML = html;
-    wrapper.appendChild(content);
-
-    if (actions.length > 0) {
-        const actionsWrap = document.createElement("div");
-        actionsWrap.className = "bot-actions";
-        const icon = document.createElement("div");
-        icon.className = "bot-chip-icon";
-        actionsWrap.appendChild(icon);
-        actions.forEach((label) => {
-            const btn = document.createElement("button");
-            btn.className = "bot-chip";
-            btn.textContent = label;
-            btn.addEventListener("click", () => sendMessage(label));
-            actionsWrap.appendChild(btn);
-        });
-        wrapper.appendChild(actionsWrap);
+    function formatDateMn() {
+      const now = new Date();
+      return `${now.getFullYear()} оны ${String(now.getMonth()+1).padStart(2,"0")} сарын ${String(now.getDate()).padStart(2,"0")}`;
     }
+    todayDate.textContent = formatDateMn();
 
-    row.appendChild(wrapper);
-    chatMessages.appendChild(row);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+    openChatbot.addEventListener("click",  () => chatbotOverlay.classList.add("active"));
+    closeChatbot.addEventListener("click", () => chatbotOverlay.classList.remove("active"));
+    chatbotOverlay.addEventListener("click", e => { if(e.target===chatbotOverlay) chatbotOverlay.classList.remove("active"); });
 
-function addTyping() {
-    const row = document.createElement("div");
-    row.className = "msg-row bot";
-    row.id = "typingRow";
-    const bubble = document.createElement("div");
-    bubble.className = "msg bot";
-    bubble.innerHTML = "<em style='color:#aaa'>Хариулт бэлдэж байна...</em>";
-    row.appendChild(bubble);
-    chatMessages.appendChild(row);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function removeTyping() {
-    const el = document.getElementById("typingRow");
-    if (el) el.remove();
-}
-
-// ── Quick items ──────────────────────────────────────────
-const quickLabels = {
-    payment:  "Төлбөр төлөх заавар",
-    schedule: "Хичээлийн хуваарь",
-    teacher:  "Багшийн мэдээлэл",
-    rule:     "Журам",
-};
-
-quickItems.forEach((item) => {
-    item.addEventListener("click", () => {
-        const label = quickLabels[item.dataset.key] || item.textContent.trim();
-        hideIntro();
-        addUserBubble(label);
-        fetchAIAnswer(label);
+    newChat.addEventListener("click", () => {
+      history = []; introHidden = false;
+      chatMessages.innerHTML = "";
+      chatIntro.classList.remove("hidden");
     });
-});
 
-// ── AI-аас хариулт авах ──────────────────────────────────
-async function fetchAIAnswer(text) {
-    addTyping();
-    isLoading = true;
-    sendBtn.disabled = true;
+    function hideIntro() {
+      if (!introHidden) { chatIntro.classList.add("hidden"); introHidden = true; }
+    }
 
-    try {
+    function addUserBubble(text) {
+      const row = document.createElement("div");
+      row.className = "msg-row user";
+      const b = document.createElement("div");
+      b.className = "msg user";
+      b.textContent = text;
+      row.appendChild(b);
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addBotMessage(html) {
+      const row = document.createElement("div");
+      row.className = "msg-row bot";
+
+      const header = document.createElement("div");
+      header.className = "bot-bubble-header";
+      header.innerHTML = `<div class="bot-avatar-sm">🤖</div><span class="bot-name">МУИС chatbot</span>`;
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg bot";
+      const content = document.createElement("div");
+      content.className = "bot-rich";
+      content.innerHTML = html;
+      bubble.appendChild(content);
+
+      row.appendChild(header);
+      row.appendChild(bubble);
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return row;
+    }
+
+    function addTyping() {
+      const row = document.createElement("div");
+      row.className = "typing-row";
+      row.id = "typingRow";
+      row.innerHTML = `
+        <div class="typing-header">
+          <div class="bot-avatar-sm">🤖</div>
+          <span class="bot-name">МУИС chatbot</span>
+        </div>
+        <div class="typing-bubble">
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>`;
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+      const el = document.getElementById("typingRow");
+      if (el) el.remove();
+    }
+
+    quickItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const text = item.dataset.val || item.textContent.trim();
+        hideIntro();
+        addUserBubble(text);
+        fetchAIAnswer(text);
+      });
+    });
+
+    async function fetchAIAnswer(text) {
+      addTyping();
+      isLoading = true;
+      sendBtn.disabled = true;
+
+      try {
         const res  = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text, history }),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, history }),
         });
         const data = await res.json();
         removeTyping();
 
         if (data.error) {
-            addBotHtml(`<div class="bot-rich"><p>❌ Алдаа: ${data.error}</p></div>`);
+          addBotMessage(`<p>❌ Алдаа: ${data.error}</p>`);
         } else {
-            addBotHtml(`<div class="bot-rich">${data.answer}</div>`);
-            history.push({ role: "user",      content: text });
-            history.push({ role: "assistant", content: data.answer });
+          addBotMessage(data.answer);
+          history.push({ role: "user",      content: text });
+          history.push({ role: "assistant", content: data.answer });
         }
-    } catch (err) {
+      } catch (err) {
         removeTyping();
-        addBotHtml(`<div class="bot-rich"><p>❌ Сервертэй холбогдох боломжгүй.</p></div>`);
+        addBotMessage(`<p>❌ Сервертэй холбогдох боломжгүй.</p>`);
+      }
+
+      isLoading = false;
+      sendBtn.disabled = false;
     }
 
-    isLoading = false;
-    sendBtn.disabled = false;
-}
+    async function sendMessage(override) {
+      if (isLoading) return;
+      const text = override || chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = "";
+      hideIntro();
+      addUserBubble(text);
+      await fetchAIAnswer(text);
+    }
 
-// ── Мессеж илгээх ────────────────────────────────────────
-async function sendMessage(overrideText) {
-    if (isLoading) return;
-    const text = overrideText || chatInput.value.trim();
-    if (!text) return;
-    chatInput.value = "";
-    hideIntro();
-    addUserBubble(text);
-    await fetchAIAnswer(text);
-}
-
-sendBtn.addEventListener("click", () => sendMessage());
-chatInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-});
+    sendBtn.addEventListener("click",  () => sendMessage());
+    chatInput.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+    document.getElementById("attachBtn").addEventListener("click", () => document.getElementById("fileInput").click());
   </script>
 </body>
 </html>
