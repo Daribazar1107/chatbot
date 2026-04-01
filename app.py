@@ -16,7 +16,7 @@ PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
 INDEX_NAME    = "muis-chatbot"
 EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"
 
-RELEVANCE_THRESHOLD = 0.30
+RELEVANCE_THRESHOLD = 0.60
 REJECT_MESSAGE = (
     "Уучлаарай, би зөвхөн МУИС-ийн журам, дүрэм, "
     "академик бодлоготой холбоотой асуултад хариулах боломжтой. "
