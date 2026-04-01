@@ -92,19 +92,39 @@ def split_chunks(text: str, source: str) -> list[dict]:
     return chunks
 
 # ── JSON УНШИГЧИД ───────────────────────────────────────
-def build_rule_text(item: dict) -> str | None:
+def build_rule_text(item: dict) -> list:
     bulag   = item.get("бүлэг", "").strip()
-    zaalt   = item.get("заалт", "").strip()
-    aguulga = item.get("агуулга", "").strip()
     tags    = item.get("таг", [])
-    if not aguulga:
-        return None
-    parts = []
-    if bulag:  parts.append(f"Сэдэв: {bulag}.")
-    if zaalt:  parts.append(f"Заалт {zaalt}:")
-    parts.append(aguulga)
-    if tags:   parts.append(f"Холбоотой: {', '.join(tags)}.")
-    return " ".join(parts)
+    tag_str = f" Холбоотой: {', '.join(tags)}." if tags else ""
+    results = []
+
+    # Бүтэц А: шууд агуулга
+    aguulga = item.get("агуулга", "").strip()
+    if aguulga:
+        parts = []
+        if bulag: parts.append(f"Сэдэв: {bulag}.")
+        zaalt = item.get("заалт", "").strip()
+        if zaalt: parts.append(f"Заалт {zaalt}:")
+        parts.append(aguulga + tag_str)
+        results.append(" ".join(parts))
+
+    # Бүтэц Б: заалтууд array
+    for z in item.get("заалтууд", []):
+        if not isinstance(z, dict):
+            continue
+        z_aguulga = z.get("агуулга", "").strip()
+        if not z_aguulga:
+            continue
+        z_num = z.get("заалт", "").strip()
+        z_ner = z.get("нэр_томьёо", "").strip()
+        parts = []
+        if bulag: parts.append(f"Сэдэв: {bulag}.")
+        if z_num: parts.append(f"Заалт {z_num}:")
+        if z_ner: parts.append(f"[{z_ner}]")
+        parts.append(z_aguulga + tag_str)
+        results.append(" ".join(parts))
+
+    return results
 
 
 def build_teacher_text(item: dict) -> str | None:
@@ -144,15 +164,20 @@ def build_teacher_text(item: dict) -> str | None:
 
 
 def build_course_text(item: dict) -> str | None:
-    idx   = item.get("Хичээлийн_индекс", "").strip()
-    ner   = item.get("Монгол_нэр", item.get("нэр", "")).strip()
-    bagts = item.get("Багц_цаг", item.get("bagts_tsag", ""))
-    desc  = item.get("Товч_агуулга", item.get("агуулга", "")).strip()
+    idx      = item.get("Хичээлийн_индекс", "").strip()
+    ner      = item.get("Монгол_нэр", item.get("нэр", "")).strip()
+    bagts    = item.get("Багц_цаг", item.get("bagts_tsag", ""))
+    tenger   = item.get("Харьяалах_тэнхим", "").strip()
+    tuvshun  = item.get("Сургалтын_түвшин", "").strip()
+    uliral   = item.get("Орох_улирал", "").strip()
     if not ner:
         return None
+    # Товч_агуулга ОГТХОН оруулахгүй — classifier-т нөлөөлнө
     parts = [f"Хичээл: {ner}" + (f" ({idx})" if idx else "") + "."]
-    if bagts: parts.append(f"Багц цаг: {bagts}.")
-    if desc:  parts.append(f"Агуулга: {desc}")
+    if bagts:   parts.append(f"Багц цаг: {bagts}.")
+    if tenger:  parts.append(f"Тэнхим: {tenger}.")
+    if tuvshun: parts.append(f"Түвшин: {tuvshun}.")
+    if uliral:  parts.append(f"Улирал: {uliral}.")
     return " ".join(parts)
 
 
@@ -180,8 +205,14 @@ def read_json(filepath: str) -> list[dict]:
         if not isinstance(item, dict):
             continue
 
-        if "агуулга" in item and ("бүлэг" in item or "заалт" in item):
-            text = build_rule_text(item)
+        if "бүлэг" in item or "заалтууд" in item or ("агуулга" in item and "заалт" in item):
+            texts = build_rule_text(item)
+            for text in (texts or []):
+                if len(text) > CHUNK_SIZE:
+                    results.extend(split_chunks(text, src))
+                elif len(text) >= MIN_CHUNK_LEN:
+                    results.append({"text": text, "source": src})
+            continue
         elif any(k in item for k in ["Багш_ажилтны_нэр", "ner", "firstname"]):
             text = build_teacher_text(item)
         elif "Хичээлийн_индекс" in item or "Монгол_нэр" in item:
