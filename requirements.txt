@@ -7,3 +7,4 @@ anthropic
 pypdf2
 python-docx
 redis
+rank-bm25 sentence-transformers

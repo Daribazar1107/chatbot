@@ -1,17 +1,10 @@
-"""
-app.py — МУИС chatbot Flask backend
-Redis Cache + Query Classifier нэмсэн хувилбар
-
-Embedder: paraphrase-multilingual-mpnet-base-v2
-Model:    claude-haiku-4-5-20251001
-"""
-
 import os, markdown, anthropic
 from flask import Flask, render_template, request, jsonify
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from cache import get_cached, set_cached, stats as cache_stats
+from query_rewriter import rewrite as rewrite_query
 
 load_dotenv()
 
@@ -107,14 +100,36 @@ def search_context(query: str, top_k: int = 12) -> list[dict]:
     try:
         if any(kw in query.upper() for kw in BOOST_KEYWORDS):
             top_k = 20
-        vector  = embedder.encode(expand_query(query)).tolist()
-        results = index.query(vector=vector, top_k=top_k, include_metadata=True)
+
+        # Query Rewriter: HyDE + Expand
+        rewritten  = rewrite_query(query, use_hyde=True, use_expand=True)
+        hyde_text  = rewritten["hyde"]      # HyDE embed хийхэд
+        expand_text = rewritten["expanded"]  # keyword өргөтгөлд
+
+        # HyDE vector-оор хайна (илүү нарийвчлалтай)
+        hyde_vector    = embedder.encode(hyde_text).tolist()
+        expand_vector  = embedder.encode(expand_query(expand_text)).tolist()
+
+        # 2 vector-оор хайж нэгтгэнэ
+        res1 = index.query(vector=hyde_vector,   top_k=top_k,     include_metadata=True)
+        res2 = index.query(vector=expand_vector, top_k=top_k//2,  include_metadata=True)
+
+        # Давхардахгүйгээр нэгтгэх
+        seen = set()
+        combined = []
+        for m in res1.matches + res2.matches:
+            if m.id not in seen:
+                seen.add(m.id)
+                combined.append(m)
+        # Score-оор эрэмбэлэх
+        combined.sort(key=lambda x: x.score, reverse=True)
+        results_matches = combined[:top_k]
         matches = []
-        for m in results["matches"]:
-            score = m.get("score", 0)
+        for m in results_matches:
+            score = m.score
             if score < 0.10:
                 continue
-            meta = m.get("metadata", {})
+            meta = m.metadata if hasattr(m, "metadata") else m.get("metadata", {})
             matches.append({
                 "text":   meta.get("text", ""),
                 "source": meta.get("source", "МУИС-ийн баримт бичиг"),
