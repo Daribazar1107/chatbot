@@ -108,30 +108,38 @@ def build_rule_text(item: dict) -> str | None:
 
 
 def build_teacher_text(item: dict) -> str | None:
+    # Зөвхөн өгөгдсөн JSON-ийн түлхүүрүүдэд зориулсан mapping
     keys = {
-        "ovog":      ["Багш_ажилтны_овог", "ovog", "lastname"],
-        "ner":       ["Багш_ажилтны_нэр",  "ner",  "firstname", "name"],
-        "alba":      ["Албан_тушаал",       "alban_tushaal", "position"],
-        "tenkhim":   ["Харьяалах_бүтцийн_нэгжийн_нэр", "salbar_surguuli", "department"],
-        "bolovsrol": ["Эзэмшсэн_боловсрол", "degree"],
-        "email":     ["Имэйл_хаяг", "email"],
+        "ovog":            ["ovog"],
+        "ner":             ["ner"],
+        "salbar_surguuli": ["salbar_surguuli"],
+        "alban_tushaal":   ["alban_tushaal"],
+        "uruunii_dugaar":  ["uruunii_dugaar"],
+        "utas":            ["utas"]
     }
 
     def get(field):
         for k in keys[field]:
             v = item.get(k, "")
-            if v: return str(v).strip()
+            # "Байхгүй" гэсэн утгыг текст рүү оруулахгүй байхаар шүүх
+            if v and str(v).strip().lower() not in ["байхгүй", "none", "null", ""]:
+                return str(v).strip()
         return ""
 
     ner = get("ner")
     if not ner:
         return None
 
-    parts = [f"Багш: {get('ovog')} {ner}."]
-    if t := get("tenkhim"):    parts.append(f"Тэнхим: {t}.")
-    if a := get("alba"):       parts.append(f"Албан тушаал: {a}.")
-    if b := get("bolovsrol"):  parts.append(f"Боловсрол: {b}.")
-    if e := get("email"):      parts.append(f"Имэйл: {e}.")
+    ovog = get("ovog")
+    # Овог байгаа эсэхийг шалгаж эхлэх хэсгийг угсарна
+    parts = [f"Багш: {ovog} {ner}." if ovog else f"Багш: {ner}."]
+    
+    # Бусад талбаруудыг дарааллын дагуу нэмэх
+    if s := get("salbar_surguuli"): parts.append(f"Сургууль: {s}.")
+    if a := get("alban_tushaal"):   parts.append(f"Албан тушаал: {a}.")
+    if u := get("uruunii_dugaar"):  parts.append(f"Өрөө: {u}.")
+    if t := get("utas"):            parts.append(f"Утас: {t}.")
+    
     return " ".join(parts)
 
 

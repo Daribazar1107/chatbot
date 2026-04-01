@@ -1,7 +1,8 @@
 """
 app.py — МУИС chatbot Flask backend
+Redis Cache + Query Classifier нэмсэн хувилбар
 
-Embedder: paraphrase-multilingual-mpnet-base-v2 (Монгол хэлд тохирсон)
+Embedder: paraphrase-multilingual-mpnet-base-v2
 Model:    claude-haiku-4-5-20251001
 """
 
@@ -10,6 +11,7 @@ from flask import Flask, render_template, request, jsonify
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+from cache import get_cached, set_cached, stats as cache_stats
 
 load_dotenv()
 
@@ -19,9 +21,15 @@ app = Flask(__name__)
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
 PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
 INDEX_NAME    = "muis-chatbot"
-EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"  # ingest.py-тэй ИЖИЛ байх ёстой
+EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"
 
-# Монгол хэлний синоним — хайлтыг баяжуулна
+RELEVANCE_THRESHOLD = 0.30
+REJECT_MESSAGE = (
+    "Уучлаарай, би зөвхөн МУИС-ийн журам, дүрэм, "
+    "академик бодлоготой холбоотой асуултад хариулах боломжтой. "
+    "Таны асуулт энэ хүрээнд хамаарахгүй байна. 🎓"
+)
+
 MN_SYNONYMS = {
     "кредит":    "багц цаг кредит",
     "курс":      "түвшин курс дугаар",
@@ -38,14 +46,22 @@ MN_SYNONYMS = {
     "дадлага":   "дадлага мэргэжлийн магистр",
 }
 
-# Хайлтыг хүчитгэх түлхүүр үгс
 BOOST_KEYWORDS = {
     "W", "WF", "NR", "NA", "CA", "CR", "RC", "GPA",
     "ГОЛЧ", "ҮНЭЛГЭЭ", "ТЭМДЭГЛЭГЭЭ", "КРЕДИТ", "БАГЦ",
     "ТҮВШИН", "КУРС", "ХАСАХ", "ЧӨЛӨӨ", "ТӨГСӨЛТ",
 }
 
-# ── КЛИЕНТҮҮД (нэг удаа ачаална) ────────────────────────
+MUИС_KEYWORDS = [
+    "журам", "дүрэм", "бодлого", "оюутан", "элсэлт", "төгсөлт",
+    "шалгалт", "дипломын", "зэрэг", "тэнхим", "сургууль", "бүртгэл",
+    "суралцах", "хичээл", "кредит", "gpa", "оноо", "стипенди",
+    "дотуур", "байр", "сургалтын", "хураамж", "чөлөө", "хасагдах",
+    "шагнал", "тэтгэлэг", "практик", "дадлага", "хамгаалалт",
+    "голч", "дүн", "үнэлгээ", "кредит", "курс", "түвшин",
+]
+
+# ── КЛИЕНТҮҮД ────────────────────────────────────────────
 print(f"🔧 Embedder ачааллаж байна: {EMBED_MODEL}")
 embedder = SentenceTransformer(EMBED_MODEL)
 print("✅ Embedder бэлэн.")
@@ -54,34 +70,45 @@ claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 pc     = Pinecone(api_key=PINECONE_KEY)
 index  = pc.Index(INDEX_NAME)
 
-# ── RAG ХАЙЛТ ───────────────────────────────────────────
+
+# ── QUERY CLASSIFIER ─────────────────────────────────────
+
+def classify_query(query: str) -> dict:
+    query = query.strip()
+    if len(query) < 3:
+        return {"is_relevant": False, "score": 0.0, "method": "empty"}
+    try:
+        expanded = expand_query(query)
+        vector   = embedder.encode(expanded).tolist()
+        results  = index.query(vector=vector, top_k=3, include_metadata=False)
+        if not results["matches"]:
+            return {"is_relevant": False, "score": 0.0, "method": "no_matches"}
+        best_score = results["matches"][0]["score"]
+        return {
+            "is_relevant": best_score >= RELEVANCE_THRESHOLD,
+            "score":  round(best_score, 3),
+            "method": "embedding",
+        }
+    except Exception as e:
+        print(f"⚠️ Classifier error: {e}")
+        kw_match = any(kw in query.lower() for kw in MUИС_KEYWORDS)
+        return {"is_relevant": kw_match, "score": 0.0, "method": "keyword_fallback"}
+
+
+# ── RAG ХАЙЛТ ────────────────────────────────────────────
+
 def expand_query(query: str) -> str:
-    """Монгол синонимоор асуултыг баяжуулна."""
     q_lower = query.lower()
-    extras  = []
-    for mn, exp in MN_SYNONYMS.items():
-        if mn in q_lower:
-            extras.append(exp)
-    if extras:
-        return f"{query} {' '.join(extras)}"
-    return query
+    extras  = [exp for mn, exp in MN_SYNONYMS.items() if mn in q_lower]
+    return f"{query} {' '.join(extras)}" if extras else query
 
 
 def search_context(query: str, top_k: int = 12) -> list[dict]:
-    """Pinecone-ээс хамааралтай chunk хайна."""
     try:
         if any(kw in query.upper() for kw in BOOST_KEYWORDS):
             top_k = 20
-
-        expanded = expand_query(query)
-        vector   = embedder.encode(expanded).tolist()
-
-        results = index.query(
-            vector=vector,
-            top_k=top_k,
-            include_metadata=True,
-        )
-
+        vector  = embedder.encode(expand_query(query)).tolist()
+        results = index.query(vector=vector, top_k=top_k, include_metadata=True)
         matches = []
         for m in results["matches"]:
             score = m.get("score", 0)
@@ -93,24 +120,19 @@ def search_context(query: str, top_k: int = 12) -> list[dict]:
                 "source": meta.get("source", "МУИС-ийн баримт бичиг"),
                 "score":  round(score, 3),
             })
-
         return matches
-
     except Exception as e:
         print(f"❌ Search error: {e}")
         return []
 
 
 def build_context_block(matches: list[dict]) -> str:
-    """Chunk-уудыг эх сурвалжтай нэгтгэнэ."""
     if not matches:
         return ""
-    parts = []
-    for m in matches:
-        parts.append(f"[{m['source']}]\n{m['text']}")
-    return "\n\n---\n\n".join(parts)
+    return "\n\n---\n\n".join(f"[{m['source']}]\n{m['text']}" for m in matches)
 
-# ── СИСТЕМ ПРОМТ ────────────────────────────────────────
+
+# ── СИСТЕМ ПРОМТ ─────────────────────────────────────────
 SYSTEM_BASE = """Та бол МУИС-ийн "МУИС-Туслах" чатбот юм.
 
 ХЭЛНИЙ ЗААВАР:
@@ -136,7 +158,8 @@ def build_system_prompt(context: str) -> str:
     ctx = context if context else "Мэдээллийн санд холбогдох баримт олдсонгүй."
     return f"{SYSTEM_BASE}\n\nКОНТЕКСТ:\n{ctx}"
 
-# ── ROUTE-УУД ───────────────────────────────────────────
+
+# ── ROUTE-УУД ─────────────────────────────────────────────
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -151,21 +174,35 @@ def chat():
     if not user_message:
         return jsonify({"error": "Хоосон асуулт"}), 400
 
+    # ── 1. Classify ──────────────────────────────────────
+    classification = classify_query(user_message)
+    if not classification["is_relevant"]:
+        print(f"🚫 Rejected [{classification['method']}] score={classification['score']}: {user_message[:60]}")
+        return jsonify({"answer": REJECT_MESSAGE, "sources": [], "cached": False})
+
+    # ── 2. Cache шалгах ───────────────────────────────────
+    # Зөвхөн шинэ яриа (history хоосон) үед кэшлэнэ.
+    # Яриын дундаас асуувал өмнөх context нөлөөлдөг тул кэш ашиглахгүй.
+    use_cache = len(history) == 0
+    if use_cache:
+        cached = get_cached(user_message)
+        if cached:
+            return jsonify({**cached, "cached": True})
+
     try:
-        # 1. RAG хайлт
+        # ── 3. RAG хайлт ─────────────────────────────────
         matches      = search_context(user_message)
         context_text = build_context_block(matches)
 
-        # 2. Яриын түүх (сүүлийн 6 мессеж)
+        # ── 4. Яриын түүх ────────────────────────────────
         messages = []
         for m in history[-6:]:
-            role    = m.get("role", "")
-            content = m.get("content", "")
+            role, content = m.get("role", ""), m.get("content", "")
             if role in ("user", "assistant") and content:
                 messages.append({"role": role, "content": content})
         messages.append({"role": "user", "content": user_message})
 
-        # 3. Claude дуудах
+        # ── 5. Claude дуудах ─────────────────────────────
         response = claude.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1500,
@@ -179,25 +216,22 @@ def chat():
             raw_text,
             extensions=["tables", "nl2br", "fenced_code"],
         )
-
         sources = list({m["source"] for m in matches})
 
-        return jsonify({
-            "answer":  html_text,
-            "sources": sources,
-        })
+        # ── 6. Cache-д хадгалах ───────────────────────────
+        if use_cache:
+            set_cached(user_message, html_text, sources)
+
+        return jsonify({"answer": html_text, "sources": sources, "cached": False})
 
     except anthropic.APIStatusError as e:
         code = e.status_code
-        if code == 429:
-            msg = "⏳ Хэтэрхий олон хүсэлт. Хэсэг хүлээгээд дахин оролдоно уу."
-        elif code == 401:
-            msg = "❌ Claude API key буруу байна."
-        elif code == 529:
-            msg = "❌ Claude сервер ачаалалтай байна. Дахин оролдоно уу."
-        else:
-            msg = f"❌ Claude алдаа ({code})"
-        return jsonify({"error": msg}), 500
+        msgs = {
+            429: "⏳ Хэтэрхий олон хүсэлт. Хэсэг хүлээгээд дахин оролдоно уу.",
+            401: "❌ Claude API key буруу байна.",
+            529: "❌ Claude сервер ачаалалтай байна. Дахин оролдоно уу.",
+        }
+        return jsonify({"error": msgs.get(code, f"❌ Claude алдаа ({code})")}), 500
 
     except Exception as e:
         print(f"❌ Chat error: {e}")
@@ -206,16 +240,23 @@ def chat():
 
 @app.route("/health")
 def health():
-    """Серверийн байдал шалгах endpoint."""
     try:
         stats = index.describe_index_stats()
         return jsonify({
             "status":       "ok",
             "vector_count": stats.total_vector_count,
             "embed_model":  EMBED_MODEL,
+            "cache":        cache_stats(),
         })
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
+
+
+@app.route("/admin/cache/flush", methods=["POST"])
+def flush_cache():
+    from cache import flush_all
+    ok = flush_all()
+    return jsonify({"flushed": ok})
 
 
 if __name__ == "__main__":
