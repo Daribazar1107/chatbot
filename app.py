@@ -1,10 +1,17 @@
+"""
+app.py — МУИС chatbot Flask backend
+Redis Cache + Query Classifier нэмсэн хувилбар
+
+Embedder: paraphrase-multilingual-mpnet-base-v2
+Model:    claude-haiku-4-5-20251001
+"""
+
 import os, markdown, anthropic
 from flask import Flask, render_template, request, jsonify
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from cache import get_cached, set_cached, stats as cache_stats
-from query_rewriter import rewrite as rewrite_query
 
 load_dotenv()
 
@@ -17,6 +24,14 @@ INDEX_NAME    = "muis-chatbot"
 EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"
 
 RELEVANCE_THRESHOLD = 0.60
+
+TRUSTED_SOURCES = {
+    "журам.json",
+    "chuluu.json",
+    "teachers.json",
+    "grading.json",
+    "level.json",
+}
 REJECT_MESSAGE = (
     "Уучлаарай, би зөвхөн МУИС-ийн журам, дүрэм, "
     "академик бодлоготой холбоотой асуултад хариулах боломжтой. "
@@ -52,6 +67,9 @@ MUИС_KEYWORDS = [
     "дотуур", "байр", "сургалтын", "хураамж", "чөлөө", "хасагдах",
     "шагнал", "тэтгэлэг", "практик", "дадлага", "хамгаалалт",
     "голч", "дүн", "үнэлгээ", "кредит", "курс", "түвшин",
+    # Үсгэн тэмдэглэгээ — "G үнэлгээ", "WF үнэлгээ" гэх асуултуудад
+    " w ", "wf", " f ", " i ", " r ", "cr", "ca", "nr", "na", "rc",
+    " g ", "grade", "grading", "тэмдэглэгээ", "үнэлгээний",
 ]
 
 # ── КЛИЕНТҮҮД ────────────────────────────────────────────
@@ -67,24 +85,45 @@ index  = pc.Index(INDEX_NAME)
 # ── QUERY CLASSIFIER ─────────────────────────────────────
 
 def classify_query(query: str) -> dict:
+    """
+    3 шатлалт classifier:
+      Шат 1: Keyword — хурдан, найдвартай (хамааралтай бол шууд pass)
+      Шат 2: Embedding + trusted source шалгалт
+      Шат 3: Keyword fallback (Pinecone алдаа үед)
+    """
     query = query.strip()
     if len(query) < 3:
         return {"is_relevant": False, "score": 0.0, "method": "empty"}
+
+    # ── Шат 1: Keyword хурдан шалгалт ───────────────────
+    q_lower = query.lower()
+    if any(kw in q_lower for kw in MUИС_KEYWORDS):
+        return {"is_relevant": True, "score": 1.0, "method": "keyword_pass"}
+
+    # ── Шат 2: Embedding + trusted source шалгалт ───────
     try:
         expanded = expand_query(query)
         vector   = embedder.encode(expanded).tolist()
-        results  = index.query(vector=vector, top_k=3, include_metadata=False)
+        results  = index.query(vector=vector, top_k=5, include_metadata=True)
+
         if not results["matches"]:
             return {"is_relevant": False, "score": 0.0, "method": "no_matches"}
+
         best_score = results["matches"][0]["score"]
-        return {
-            "is_relevant": best_score >= RELEVANCE_THRESHOLD,
-            "score":  round(best_score, 3),
-            "method": "embedding",
-        }
+
+        # Trusted source-аас өндөр score → pass
+        for m in results["matches"]:
+            src   = m.get("metadata", {}).get("source", "")
+            score = m.get("score", 0)
+            if src in TRUSTED_SOURCES and score >= RELEVANCE_THRESHOLD:
+                return {"is_relevant": True, "score": round(score, 3), "method": "trusted_source"}
+
+        return {"is_relevant": False, "score": round(best_score, 3), "method": "no_trusted_source"}
+
     except Exception as e:
         print(f"⚠️ Classifier error: {e}")
-        kw_match = any(kw in query.lower() for kw in MUИС_KEYWORDS)
+        # ── Шат 3: Keyword fallback ──────────────────────
+        kw_match = any(kw in q_lower for kw in MUИС_KEYWORDS)
         return {"is_relevant": kw_match, "score": 0.0, "method": "keyword_fallback"}
 
 
@@ -100,36 +139,14 @@ def search_context(query: str, top_k: int = 12) -> list[dict]:
     try:
         if any(kw in query.upper() for kw in BOOST_KEYWORDS):
             top_k = 20
-
-        # Query Rewriter: HyDE + Expand
-        rewritten  = rewrite_query(query, use_hyde=True, use_expand=True)
-        hyde_text  = rewritten["hyde"]      # HyDE embed хийхэд
-        expand_text = rewritten["expanded"]  # keyword өргөтгөлд
-
-        # HyDE vector-оор хайна (илүү нарийвчлалтай)
-        hyde_vector    = embedder.encode(hyde_text).tolist()
-        expand_vector  = embedder.encode(expand_query(expand_text)).tolist()
-
-        # 2 vector-оор хайж нэгтгэнэ
-        res1 = index.query(vector=hyde_vector,   top_k=top_k,     include_metadata=True)
-        res2 = index.query(vector=expand_vector, top_k=top_k//2,  include_metadata=True)
-
-        # Давхардахгүйгээр нэгтгэх
-        seen = set()
-        combined = []
-        for m in res1.matches + res2.matches:
-            if m.id not in seen:
-                seen.add(m.id)
-                combined.append(m)
-        # Score-оор эрэмбэлэх
-        combined.sort(key=lambda x: x.score, reverse=True)
-        results_matches = combined[:top_k]
+        vector  = embedder.encode(expand_query(query)).tolist()
+        results = index.query(vector=vector, top_k=top_k, include_metadata=True)
         matches = []
-        for m in results_matches:
-            score = m.score
+        for m in results["matches"]:
+            score = m.get("score", 0)
             if score < 0.10:
                 continue
-            meta = m.metadata if hasattr(m, "metadata") else m.get("metadata", {})
+            meta = m.get("metadata", {})
             matches.append({
                 "text":   meta.get("text", ""),
                 "source": meta.get("source", "МУИС-ийн баримт бичиг"),

@@ -1,14 +1,6 @@
-"""
-query_rewriter.py — Query Rewriter module
-МУИС chatbot-ын хайлтын нарийвчлалыг нэмэгдүүлнэ.
-
-2 арга:
-  1. HyDE  — Claude-аар хиймэл хариу үүсгэж embed хийнэ
-  2. Expand — асуултыг МУИС нэр томьёонд тохируулан өргөтгөнө
-"""
-
 import os, anthropic
-
+from dotenv import load_dotenv
+load_dotenv()
 _client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 # ── HyDE ─────────────────────────────────────────────────

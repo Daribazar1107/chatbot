@@ -126,39 +126,27 @@ def build_rule_text(item: dict) -> list:
 
     return results
 
-
 def build_teacher_text(item: dict) -> str | None:
-    # Зөвхөн өгөгдсөн JSON-ийн түлхүүрүүдэд зориулсан mapping
-    keys = {
-        "ovog":            ["ovog"],
-        "ner":             ["ner"],
-        "salbar_surguuli": ["salbar_surguuli"],
-        "alban_tushaal":   ["alban_tushaal"],
-        "uruunii_dugaar":  ["uruunii_dugaar"],
-        "utas":            ["utas"]
-    }
-
-    def get(field):
-        for k in keys[field]:
-            v = item.get(k, "")
-            # "Байхгүй" гэсэн утгыг текст рүү оруулахгүй байхаар шүүх
-            if v and str(v).strip().lower() not in ["байхгүй", "none", "null", ""]:
-                return str(v).strip()
+    def get(key):
+        v = item.get(key, "")
+        if v and str(v).strip().lower() not in ["байхгүй", "none", "null", ""]:
+            return str(v).strip()
         return ""
 
     ner = get("ner")
     if not ner:
         return None
 
-    ovog = get("ovog")
-    # Овог байгаа эсэхийг шалгаж эхлэх хэсгийг угсарна
-    parts = [f"Багш: {ovog} {ner}." if ovog else f"Багш: {ner}."]
+    parts = [f"Багш: {ner}."]
     
-    # Бусад талбаруудыг дарааллын дагуу нэмэх
-    if s := get("salbar_surguuli"): parts.append(f"Сургууль: {s}.")
-    if a := get("alban_tushaal"):   parts.append(f"Албан тушаал: {a}.")
-    if u := get("uruunii_dugaar"):  parts.append(f"Өрөө: {u}.")
-    if t := get("utas"):            parts.append(f"Утас: {t}.")
+    if s := get("salbar_surguuli"): 
+        parts.append(f"Сургууль: {s}.")
+    if u := get("uruunii_dugaar"): 
+        parts.append(f"Өрөө: {u}.")
+    if e := get("email"): 
+        parts.append(f"Имэйл: {e}.")
+    if t := get("utas"): 
+        parts.append(f"Утас: {t}.")
     
     return " ".join(parts)
 
