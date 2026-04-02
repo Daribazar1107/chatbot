@@ -30,9 +30,11 @@ RELEVANCE_THRESHOLD = 0.60
 TRUSTED_SOURCES = {
     "журам.json",
     "chuluu.json",
-    "bagsh.json",
+    "teachers.json",
     "grading.json",
     "level.json",
+    "schedule.json",
+    "courses.json",
 }
 REJECT_MESSAGE = (
     "Уучлаарай,асуултаа тодорхой тавина уу, "

@@ -152,12 +152,19 @@ def build_teacher_text(item: dict) -> str | None:
 
 
 def build_course_text(item: dict) -> str | None:
-    idx      = item.get("Хичээлийн_индекс", "").strip()
-    ner      = item.get("Монгол_нэр", item.get("нэр", "")).strip()
-    bagts    = item.get("Багц_цаг", item.get("bagts_tsag", ""))
-    tenger   = item.get("Харьяалах_тэнхим", "").strip()
-    tuvshun  = item.get("Сургалтын_түвшин", "").strip()
-    uliral   = item.get("Орох_улирал", "").strip()
+    def safe_get(*keys):
+        for key in keys:
+            v = item.get(key)
+            if v is not None:
+                return str(v).strip()
+        return ""
+
+    idx      = safe_get("Хичээлийн_индекс")
+    ner      = safe_get("Монгол_нэр", "нэр")
+    bagts    = safe_get("Багц_цаг", "bagts_tsag")
+    tenger   = safe_get("Харьяалах_тэнхим", "Тэнхим")   # courses.json-д "Тэнхим" гэж бичигдсэн
+    tuvshun  = safe_get("Сургалтын_түвшин", "Зэрэг")     # courses.json-д "Зэрэг" гэж бичигдсэн
+    uliral   = safe_get("Орох_улирал")
     if not ner:
         return None
     # Товч_агуулга ОГТХОН оруулахгүй — classifier-т нөлөөлнө
