@@ -22,7 +22,7 @@ app = Flask(__name__)
 # ── ТОХИРГОО ────────────────────────────────────────────
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
 PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
-INDEX_NAME    = "muis-chatbot"
+INDEX_NAME    = "muis-chatbot2"
 EMBED_MODEL   = "paraphrase-multilingual-mpnet-base-v2"
 
 RELEVANCE_THRESHOLD = 0.60
