@@ -20,7 +20,7 @@ load_dotenv()
 
 # ── ТОХИРГОО ────────────────────────────────────────────
 PINECONE_KEY  = os.getenv("PINECONE_API_KEY")
-INDEX_NAME    = "muis-chatbot"
+INDEX_NAME    = "muis-chatbot2"
 DATA_FOLDER   = "data"
 CHUNK_SIZE    = 700
 OVERLAP_SIZE  = 120
@@ -164,7 +164,14 @@ def build_teacher_text(item: dict) -> str | None:
             return str(v).strip()
         return ""
 
-    ner = get("ner")
+    # ЗАСАВ: олон боломжит нэрийн талбарыг дараалан хайна
+    ner = (
+        get("ner")
+        or get("Багш_ажилтны_нэр")
+        or get("name")
+        or " ".join(filter(None, [get("lastname"), get("firstname")]))
+        or None
+    )
     if not ner:
         return None
 
