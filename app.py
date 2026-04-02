@@ -12,6 +12,8 @@ from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from cache import get_cached, set_cached, stats as cache_stats
+from query_rewriter import rewrite as rewrite_query
+from retrieval import bm25_index, hybrid_search
 
 load_dotenv()
 
@@ -28,12 +30,13 @@ RELEVANCE_THRESHOLD = 0.60
 TRUSTED_SOURCES = {
     "журам.json",
     "chuluu.json",
-    "teachers.json",
+    "bagsh.json",
     "grading.json",
     "level.json",
 }
 REJECT_MESSAGE = (
-    "Уучлаарай, би зөвхөн МУИС-ийн журам, дүрэм, "
+    "Уучлаарай,асуултаа тодорхой тавина уу, "
+    "би зөвхөн МУИС-ийн журам, дүрэм, "
     "академик бодлоготой холбоотой асуултад хариулах боломжтой. "
     "Таны асуулт энэ хүрээнд хамаарахгүй байна. 🎓"
 )
@@ -67,7 +70,7 @@ MUИС_KEYWORDS = [
     "дотуур", "байр", "сургалтын", "хураамж", "чөлөө", "хасагдах",
     "шагнал", "тэтгэлэг", "практик", "дадлага", "хамгаалалт",
     "голч", "дүн", "үнэлгээ", "кредит", "курс", "түвшин",
-    # Үсгэн тэмдэглэгээ — "G үнэлгээ", "WF үнэлгээ" гэх асуултуудад
+    # Үсгэн тэмдэглэгээ
     " w ", "wf", " f ", " i ", " r ", "cr", "ca", "nr", "na", "rc",
     " g ", "grade", "grading", "тэмдэглэгээ", "үнэлгээний",
 ]
@@ -82,49 +85,55 @@ pc     = Pinecone(api_key=PINECONE_KEY)
 index  = pc.Index(INDEX_NAME)
 
 
+def _build_bm25():
+    try:
+        stats  = index.describe_index_stats()
+        total  = stats.total_vector_count
+        print(f"🔧 BM25 index үүсгэж байна ({total} vector)...")
+        dummy  = embedder.encode("МУИС журам").tolist()
+        result = index.query(vector=dummy, top_k=min(total, 8000), include_metadata=True)
+        chunks = [
+            {"text": m.metadata.get("text", ""), "source": m.metadata.get("source", "")}
+            for m in result.matches if m.metadata.get("text")
+        ]
+        bm25_index.build(chunks)
+    except Exception as e:
+        print(f"⚠️  BM25 index үүсгэж чадсангүй: {e}")
+
+_build_bm25()
+
+
 # ── QUERY CLASSIFIER ─────────────────────────────────────
 
 def classify_query(query: str) -> dict:
-    """
-    3 шатлалт classifier:
-      Шат 1: Keyword — хурдан, найдвартай (хамааралтай бол шууд pass)
-      Шат 2: Embedding + trusted source шалгалт
-      Шат 3: Keyword fallback (Pinecone алдаа үед)
-    """
     query = query.strip()
     if len(query) < 3:
         return {"is_relevant": False, "score": 0.0, "method": "empty"}
 
-    # ── Шат 1: Keyword хурдан шалгалт ───────────────────
+    # Шат 1: Keyword — хурдан pass
     q_lower = query.lower()
     if any(kw in q_lower for kw in MUИС_KEYWORDS):
         return {"is_relevant": True, "score": 1.0, "method": "keyword_pass"}
 
-    # ── Шат 2: Embedding + trusted source шалгалт ───────
+    # Шат 2: Embedding + trusted source
     try:
         expanded = expand_query(query)
         vector   = embedder.encode(expanded).tolist()
         results  = index.query(vector=vector, top_k=5, include_metadata=True)
-
         if not results["matches"]:
             return {"is_relevant": False, "score": 0.0, "method": "no_matches"}
-
         best_score = results["matches"][0]["score"]
-
-        # Trusted source-аас өндөр score → pass
         for m in results["matches"]:
             src   = m.get("metadata", {}).get("source", "")
             score = m.get("score", 0)
             if src in TRUSTED_SOURCES and score >= RELEVANCE_THRESHOLD:
                 return {"is_relevant": True, "score": round(score, 3), "method": "trusted_source"}
-
         return {"is_relevant": False, "score": round(best_score, 3), "method": "no_trusted_source"}
 
     except Exception as e:
         print(f"⚠️ Classifier error: {e}")
-        # ── Шат 3: Keyword fallback ──────────────────────
-        kw_match = any(kw in q_lower for kw in MUИС_KEYWORDS)
-        return {"is_relevant": kw_match, "score": 0.0, "method": "keyword_fallback"}
+        # Шат 3: Keyword fallback
+        return {"is_relevant": any(kw in q_lower for kw in MUИС_KEYWORDS), "score": 0.0, "method": "keyword_fallback"}
 
 
 # ── RAG ХАЙЛТ ────────────────────────────────────────────
@@ -139,20 +148,31 @@ def search_context(query: str, top_k: int = 12) -> list[dict]:
     try:
         if any(kw in query.upper() for kw in BOOST_KEYWORDS):
             top_k = 20
-        vector  = embedder.encode(expand_query(query)).tolist()
-        results = index.query(vector=vector, top_k=top_k, include_metadata=True)
-        matches = []
-        for m in results["matches"]:
-            score = m.get("score", 0)
+
+        # 1. Query Rewrite: HyDE + Expand
+        rewritten   = rewrite_query(query, use_hyde=True, use_expand=True)
+        hyde_text   = rewritten["hyde"]
+        expand_text = rewritten["expanded"]
+
+        # 2. Dense search (Pinecone) — HyDE vector
+        hyde_vector = embedder.encode(expand_query(hyde_text)).tolist()
+        res         = index.query(vector=hyde_vector, top_k=top_k, include_metadata=True)
+        dense_matches = []
+        for m in res.matches:
+            score = m.score
             if score < 0.10:
                 continue
-            meta = m.get("metadata", {})
-            matches.append({
-                "text":   meta.get("text", ""),
-                "source": meta.get("source", "МУИС-ийн баримт бичиг"),
+            dense_matches.append({
+                "text":   m.metadata.get("text", ""),
+                "source": m.metadata.get("source", "МУИС-ийн баримт бичиг"),
                 "score":  round(score, 3),
+                "method": "dense",
             })
-        return matches
+
+        # 3. Hybrid: BM25 + RRF + Rerank
+        final = hybrid_search(expand_text, dense_matches, top_k=6)
+        return final if final else dense_matches[:6]
+
     except Exception as e:
         print(f"❌ Search error: {e}")
         return []
