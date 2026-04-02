@@ -1,3 +1,13 @@
+"""
+ingest.py — МУИС chatbot data ingestion
+Fixes:
+  - build_rule_text string-iteration bug (str → chars)
+  - заалтууд array-тай item-үүдийг зөв задлах
+  - teacher email нэмсэн
+  - grading.json-ийн student_evaluation_rules зөв унших
+  - tuition.json, level.json бүрэн унших
+"""
+
 import os, re, json, csv, time, hashlib
 from pathlib import Path
 from PyPDF2 import PdfReader
@@ -25,6 +35,7 @@ print(f"🔧 Embedder ачааллаж байна: {EMBED_MODEL}")
 embedder = SentenceTransformer(EMBED_MODEL)
 print("✅ Embedder бэлэн.")
 
+
 # ── PINECONE INDEX ───────────────────────────────────────
 def get_or_create_index():
     existing = [i.name for i in pc.list_indexes()]
@@ -50,10 +61,12 @@ def get_or_create_index():
     print("✅ Index үүсгэгдлээ.")
     return pc.Index(INDEX_NAME)
 
+
 # ── CHUNK ID ────────────────────────────────────────────
 def make_id(text: str, idx: int) -> str:
     h = hashlib.md5(text.encode()).hexdigest()[:8]
     return f"doc-{idx:05d}-{h}"
+
 
 # ── ТЕКСТ ХУВААХ ────────────────────────────────────────
 def split_chunks(text: str, source: str) -> list[dict]:
@@ -91,44 +104,62 @@ def split_chunks(text: str, source: str) -> list[dict]:
 
     return chunks
 
+
 # ── JSON УНШИГЧИД ───────────────────────────────────────
-def build_rule_text(item: dict) -> list:
+
+def build_rule_text(item: dict) -> str | None:
+    """
+    Ганц заалтын dict → текст болгоно.
+    Буцаах: str эсвэл None (хоосон бол)
+    """
     bulag   = item.get("бүлэг", "").strip()
-    tags    = item.get("таг", [])
-    tag_str = f" Холбоотой: {', '.join(tags)}." if tags else ""
-    results = []
-
-    # Бүтэц А: шууд агуулга
+    zaalt   = item.get("заалт", "").strip()
     aguulga = item.get("агуулга", "").strip()
-    if aguulga:
-        parts = []
-        if bulag: parts.append(f"Сэдэв: {bulag}.")
-        zaalt = item.get("заалт", "").strip()
-        if zaalt: parts.append(f"Заалт {zaalt}:")
-        parts.append(aguulga + tag_str)
-        results.append(" ".join(parts))
+    tags    = item.get("таг", [])
+    tulhuur = item.get("түлхүүр_үг", [])
 
-    # Бүтэц Б: заалтууд array
-    for z in item.get("заалтууд", []):
-        if not isinstance(z, dict):
+    if not aguulga:
+        return None
+
+    parts = []
+    if bulag:  parts.append(f"Сэдэв: {bulag}.")
+    if zaalt:  parts.append(f"Заалт {zaalt}:")
+    parts.append(aguulga)
+
+    all_tags = list(tags) + list(tulhuur)
+    if all_tags:
+        parts.append(f"Холбоотой: {', '.join(str(t) for t in all_tags)}.")
+
+    return " ".join(parts)
+
+
+def build_zaalt_list(item: dict, src: str) -> list[dict]:
+    """
+    заалтууд массив агуулсан item-ийг задлана.
+    Жишээ: chuluu.json — { бүлэг, таг, заалтууд: [{заалт, агуулга}, ...] }
+    """
+    results = []
+    bulag = item.get("бүлэг", "").strip()
+    tags  = item.get("таг", [])
+
+    for zaalt_item in item.get("заалтууд", []):
+        if not isinstance(zaalt_item, dict):
             continue
-        z_aguulga = z.get("агуулга", "").strip()
-        if not z_aguulga:
-            continue
-        z_num = z.get("заалт", "").strip()
-        z_ner = z.get("нэр_томьёо", "").strip()
-        parts = []
-        if bulag: parts.append(f"Сэдэв: {bulag}.")
-        if z_num: parts.append(f"Заалт {z_num}:")
-        if z_ner: parts.append(f"[{z_ner}]")
-        parts.append(z_aguulga + tag_str)
-        results.append(" ".join(parts))
+        # Эцэг бүлэг + тагийг нэгтгэж дамжуулна
+        merged = {**zaalt_item, "бүлэг": bulag, "таг": tags}
+        text = build_rule_text(merged)
+        if text and len(text) >= MIN_CHUNK_LEN:
+            results.append({"text": text, "source": src})
 
     return results
 
+
 def build_teacher_text(item: dict) -> str | None:
-    def get(key):
-        v = item.get(key, "")
+    """
+    Багшийн мэдээлэл → текст. Email-ийг нэмсэн.
+    """
+    def get(field: str) -> str:
+        v = item.get(field, "")
         if v and str(v).strip().lower() not in ["байхгүй", "none", "null", ""]:
             return str(v).strip()
         return ""
@@ -138,34 +169,25 @@ def build_teacher_text(item: dict) -> str | None:
         return None
 
     parts = [f"Багш: {ner}."]
-    
-    if s := get("salbar_surguuli"): 
-        parts.append(f"Сургууль: {s}.")
-    if u := get("uruunii_dugaar"): 
-        parts.append(f"Өрөө: {u}.")
-    if e := get("email"): 
-        parts.append(f"Имэйл: {e}.")
-    if t := get("utas"): 
-        parts.append(f"Утас: {t}.")
-    
+    if s := get("salbar_surguuli"): parts.append(f"Сургууль/тэнхим: {s}.")
+    if a := get("alban_tushaal"):   parts.append(f"Албан тушаал: {a}.")
+    if u := get("uruunii_dugaar"):  parts.append(f"Өрөөний дугаар: {u}.")
+    if t := get("utas"):            parts.append(f"Утас: {t}.")
+    if e := get("email"):           parts.append(f"И-мэйл: {e}.")
+
     return " ".join(parts)
 
 
 def build_course_text(item: dict) -> str | None:
-    idx      = item.get("Хичээлийн_индекс", "").strip()
-    ner      = item.get("Монгол_нэр", item.get("нэр", "")).strip()
-    bagts    = item.get("Багц_цаг", item.get("bagts_tsag", ""))
-    tenger   = item.get("Харьяалах_тэнхим", "").strip()
-    tuvshun  = item.get("Сургалтын_түвшин", "").strip()
-    uliral   = item.get("Орох_улирал", "").strip()
+    idx   = item.get("Хичээлийн_индекс", "").strip()
+    ner   = item.get("Монгол_нэр", item.get("нэр", "")).strip()
+    bagts = item.get("Багц_цаг", item.get("bagts_tsag", ""))
+    desc  = item.get("Товч_агуулга", item.get("агуулга", "")).strip()
     if not ner:
         return None
-    # Товч_агуулга ОГТХОН оруулахгүй — classifier-т нөлөөлнө
     parts = [f"Хичээл: {ner}" + (f" ({idx})" if idx else "") + "."]
-    if bagts:   parts.append(f"Багц цаг: {bagts}.")
-    if tenger:  parts.append(f"Тэнхим: {tenger}.")
-    if tuvshun: parts.append(f"Түвшин: {tuvshun}.")
-    if uliral:  parts.append(f"Улирал: {uliral}.")
+    if bagts: parts.append(f"Багц цаг: {bagts}.")
+    if desc:  parts.append(f"Агуулга: {desc}")
     return " ".join(parts)
 
 
@@ -175,6 +197,149 @@ def build_term_text(item: dict) -> str | None:
     if not desc:
         return None
     return f"Нэр томьёо — {term}: {desc}"
+
+
+def build_regulation_table(item: dict) -> list[str]:
+    """
+    level.json гэх мэт regulation_table бүтэцтэй файл уншина.
+    """
+    title   = item.get("title", "").strip()
+    content = item.get("content", [])
+    results = []
+
+    for prog in content:
+        if not isinstance(prog, dict):
+            continue
+        hotolbor   = prog.get("хөтөлбөр", "").strip()
+        tulhuur_ug = prog.get("түлхүүр_үг", [])
+        tuvshinguud = prog.get("түвшин", [])
+
+        for t in tuvshinguud:
+            if not isinstance(t, dict):
+                continue
+            ner   = t.get("нэр", "").strip()
+            bagts = t.get("багц_цаг", "").strip()
+            text  = f"{title}. {hotolbor} хөтөлбөр: {ner} — нийт {bagts} багц цаг цуглуулсан байна."
+            if tulhuur_ug:
+                text += f" Холбоотой: {', '.join(tulhuur_ug)}."
+            results.append(text)
+
+    return results
+
+
+def build_grading_chunks(item: dict) -> list[str]:
+    """
+    grading.json-ийн олон бүтэцтэй item-үүдийг задлана.
+    types: table, definitions, regulation_section, standards, methodology
+    """
+    results = []
+    title   = item.get("title", "").strip()
+    typ     = item.get("type", "")
+    content = item.get("content", {})
+
+    if typ == "table":
+        # Оноо → үсгэн дүн → тоон дүн хүснэгт
+        rows = []
+        for row in content:
+            if isinstance(row, dict):
+                rows.append(
+                    f"Оноо {row.get('оноо','')}: үсгэн дүн {row.get('үсгэн_дүн','')}, "
+                    f"тоон дүн {row.get('тоон_дүн','')}."
+                )
+        if rows:
+            results.append(f"{title}\n" + " ".join(rows))
+
+    elif typ == "definitions" and isinstance(content, dict):
+        # Key-value definitions
+        parts = [f"{title}."]
+        for k, v in content.items():
+            parts.append(f"{k}: {v}")
+        results.append(" ".join(parts))
+
+    elif typ == "definitions" and isinstance(content, list):
+        # Special notation definitions (W, WF, I, R, F гэх мэт)
+        for entry in content:
+            if not isinstance(entry, dict):
+                continue
+            temd   = entry.get("тэмдэглэгээ", "").strip()
+        #     names  = entry.get("өөр_нэршил", [])
+            tailab = entry.get("тайлбар", "").strip()
+            if temd and tailab:
+                # өөр нэршлийг нэгтгэж embed хийхэд тусална
+                names  = entry.get("өөр_нэршил", [])
+                aka    = ", ".join(names) if names else ""
+                text   = f"Үнэлгээний тэмдэглэгээ {temd}"
+                if aka: text += f" (мөн: {aka})"
+                text  += f": {tailab}"
+                results.append(text)
+
+    elif typ == "regulation_section":
+        # student_evaluation_rules гэх мэт
+        for zaalt_item in content:
+            if not isinstance(zaalt_item, dict):
+                continue
+            zaalt   = zaalt_item.get("заалт", "").strip()
+            aguulga = zaalt_item.get("агуулга", "").strip()
+            tulhuur = zaalt_item.get("түлхүүр_үг", [])
+            if aguulga:
+                text = f"{title}. Заалт {zaalt}: {aguulga}"
+                if tulhuur:
+                    text += f" Холбоотой: {', '.join(tulhuur)}."
+                results.append(text)
+
+    elif typ == "standards":
+        # distribution_standards
+        parts = [f"{title}."]
+        for grade, pct in content.items():
+            parts.append(f"{grade}: {pct}")
+        results.append(" ".join(parts))
+
+    elif typ == "methodology":
+        formula  = item.get("formula", "")
+        details  = item.get("details", {})
+        parts    = [f"{title}."]
+        if formula: parts.append(f"Томьёо: {formula}.")
+        for k, v in details.items():
+            parts.append(str(v))
+        results.append(" ".join(parts))
+
+    return results
+
+
+def build_tuition_chunks(item: dict) -> list[str]:
+    """
+    tuition.json-ийн төлбөрийн мэдээлэл → текст.
+    """
+    results = []
+
+    # Дансны мэдээлэл
+    if item.get("turuul") == "tulbur_zaavar":
+        text = item.get("text", "").strip()
+        if text:
+            results.append(text)
+        return results
+
+    # Төлбөрийн тариф
+    hicheel_jil = item.get("hicheeliin_jil", "")
+    elseltin_ue = item.get("elseltiin_ue", "")
+    surguuli    = item.get("surguuli", "")
+    tulbur      = item.get("tulbur", {})
+    erunkhii    = tulbur.get("erunkhii_suuri", "")
+    mergejliin  = tulbur.get("mergejliin_suuri", "")
+
+    if hicheel_jil and surguuli:
+        text = (
+            f"Сургалтын төлбөр {hicheel_jil} хичээлийн жилд. "
+            f"Элссэн үе: {elseltin_ue}. "
+            f"Сургууль: {surguuli}. "
+        )
+        if erunkhii:
+            text += f"Ерөнхий суурь хичээлийн нэг багц цагийн төлбөр: {erunkhii:,} төгрөг. "
+        if mergejliin:
+            text += f"Мэргэжлийн суурь хичээлийн нэг багц цагийн төлбөр: {mergejliin:,} төгрөг."
+        results.append(text)
+
+    return results
 
 
 def read_json(filepath: str) -> list[dict]:
@@ -193,20 +358,59 @@ def read_json(filepath: str) -> list[dict]:
         if not isinstance(item, dict):
             continue
 
-        if "бүлэг" in item or "заалтууд" in item or ("агуулга" in item and "заалт" in item):
-            texts = build_rule_text(item)
-            for text in (texts or []):
+        # ── regulation_table (level.json) ──
+        if item.get("type") == "regulation_table":
+            for t in build_regulation_table(item):
+                if len(t) >= MIN_CHUNK_LEN:
+                    results.append({"text": t, "source": src})
+            continue
+
+        # ── grading.json олон бүтэц ──
+        if item.get("type") in ("table", "definitions", "regulation_section", "standards", "methodology"):
+            for t in build_grading_chunks(item):
+                if len(t) > CHUNK_SIZE:
+                    results.extend(split_chunks(t, src))
+                elif len(t) >= MIN_CHUNK_LEN:
+                    results.append({"text": t, "source": src})
+            continue
+
+        # ── tuition.json ──
+        if "turuul" in item or "hicheeliin_jil" in item:
+            for t in build_tuition_chunks(item):
+                if len(t) >= MIN_CHUNK_LEN:
+                    results.append({"text": t, "source": src})
+            continue
+
+        # ── заалтууд массив агуулсан item (chuluu.json гэх мэт) ──
+        # BUG FIX: өмнө нь build_rule_text(item) нь str буцааж байсан ч
+        # "for text in str" гэж character-ээр iterate хийж байсан!
+        if "заалтууд" in item:
+            results.extend(build_zaalt_list(item, src))
+            continue
+
+        # ── Ганц заалт (заалт + агуулга) ──
+        if "бүлэг" in item or ("агуулга" in item and "заалт" in item):
+            text = build_rule_text(item)
+            if text:
                 if len(text) > CHUNK_SIZE:
                     results.extend(split_chunks(text, src))
                 elif len(text) >= MIN_CHUNK_LEN:
                     results.append({"text": text, "source": src})
             continue
-        elif any(k in item for k in ["Багш_ажилтны_нэр", "ner", "firstname"]):
+
+        # ── Багш/ажилтан ──
+        if any(k in item for k in ["Багш_ажилтны_нэр", "ner", "firstname"]):
             text = build_teacher_text(item)
+
+        # ── Хичээл ──
         elif "Хичээлийн_индекс" in item or "Монгол_нэр" in item:
             text = build_course_text(item)
+
+        # ── Нэр томьёо ──
         elif "term" in item or ("нэр" in item and "тайлбар" in item):
             text = build_term_text(item)
+
+        # ── Бусад ──
         else:
             text = "; ".join(f"{k}: {v}" for k, v in item.items() if v)
 
@@ -214,10 +418,11 @@ def read_json(filepath: str) -> list[dict]:
             continue
         if len(text) > CHUNK_SIZE:
             results.extend(split_chunks(text, src))
-        else:
+        elif len(text) >= MIN_CHUNK_LEN:
             results.append({"text": text, "source": src})
 
     return results
+
 
 # ── DOCX УНШИГЧ ─────────────────────────────────────────
 def read_docx(filepath: str) -> list[dict]:
@@ -244,6 +449,7 @@ def read_docx(filepath: str) -> list[dict]:
 
     return split_chunks("\n".join(lines), src)
 
+
 # ── PDF УНШИГЧ ──────────────────────────────────────────
 def read_pdf(filepath: str) -> list[dict]:
     src     = os.path.basename(filepath)
@@ -257,6 +463,7 @@ def read_pdf(filepath: str) -> list[dict]:
     except Exception as e:
         print(f"  ❌ PDF алдаа ({src}): {e}")
     return results
+
 
 # ── CSV УНШИГЧ ──────────────────────────────────────────
 def read_csv(filepath: str) -> list[dict]:
@@ -283,6 +490,7 @@ def read_csv(filepath: str) -> list[dict]:
         print(f"  ❌ CSV алдаа ({src}): {e}")
     return results
 
+
 # ── ФАЙЛ ДИСТПАТЧ ───────────────────────────────────────
 READERS = {
     ".docx": read_docx,
@@ -290,6 +498,7 @@ READERS = {
     ".json": read_json,
     ".csv":  read_csv,
 }
+
 
 def read_file(filepath: str) -> list[dict]:
     ext = Path(filepath).suffix.lower()
@@ -302,12 +511,12 @@ def read_file(filepath: str) -> list[dict]:
         print(f"  ❌ Алдаа ({os.path.basename(filepath)}): {e}")
         return []
 
+
 # ── PINECONE UPSERT ──────────────────────────────────────
 def upsert_all(chunks: list[dict], idx):
     total = len(chunks)
     print(f"🔄 {total} chunk embedding үүсгэж байна...")
 
-    # Batch encode — дангаар encode хийхээс 3-5x хурдан
     texts      = [c["text"] for c in chunks]
     embeddings = embedder.encode(
         texts,
@@ -339,6 +548,7 @@ def upsert_all(chunks: list[dict], idx):
         time.sleep(0.15)
 
     print(f"✅ {success}/{len(vectors)} vector амжилттай орлоо.")
+
 
 # ── MAIN ────────────────────────────────────────────────
 def start_ingestion():

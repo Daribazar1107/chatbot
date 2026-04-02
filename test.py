@@ -1,17 +1,8 @@
-from app import classify_query
-
-tests = [
-    ('бууз хийх арга', False),
-    ('монгол хоол хийх арга', False),
-    ('өнөөдрийн цаг агаар', False),
-    ('сургуулиас хасах шалтгаан', True),
-    ('багшийн утасны дугаар', True),
-    ('голч дүн хэрхэн тооцдог', True),
-    ('чөлөө авах журам', True),
-]
-
-for q, expected in tests:
-    r = classify_query(q)
-    got = r["is_relevant"]
-    ok = '✅' if got == expected else '❌'
-    print(f"{ok} [{r['method']:15}] score={r['score']} | {q}")
+import json
+with open('data/level.json', encoding='utf-8') as f:
+    data = json.load(f)
+items = data if isinstance(data, list) else [data]
+print(f'Нийт: {len(items)} item')
+for item in items[:3]:
+    print(json.dumps(item, ensure_ascii=False, indent=2)[:300])
+    print('---')

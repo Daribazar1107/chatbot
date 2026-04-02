@@ -22,59 +22,81 @@ _reranker = CrossEncoder(RERANKER_MODEL, max_length=512)
 print("✅ Reranker бэлэн.")
 
 
+import pickle, re
+
+BM25_CACHE_FILE = "bm25_index.pkl"   # disk-д хадгалах файл
+
+
 # ── BM25 Index ────────────────────────────────────────────
 class BM25Index:
     """
-    Pinecone-ийн chunk-уудаас BM25 index үүсгэнэ.
-    App эхлэх үед нэг удаа дуудагдана.
+    Pinecone chunk-уудаас BM25 index үүсгэж disk-д хадгална.
+    Дараагийн boot-д disk-ээс татаж ачаална — Pinecone дуудахгүй.
     """
 
     def __init__(self):
-        self.docs:    list[dict] = []
-        self.index:   BM25Okapi | None = None
+        self.docs:   list[dict] = []
+        self.index:  BM25Okapi | None = None
         self._built = False
 
+    # ── Үүсгэх ───────────────────────────────────────────
     def build(self, chunks: list[dict]) -> None:
-        """
-        chunks: [{"text": "...", "source": "..."}]
-        Pinecone-ийн бүх chunk-аас BM25 index үүсгэнэ.
-        """
-        self.docs = chunks
-        tokenized = [self._tokenize(c["text"]) for c in chunks]
+        self.docs  = chunks
+        tokenized  = [self._tokenize(c["text"]) for c in chunks]
         self.index = BM25Okapi(tokenized)
         self._built = True
         print(f"✅ BM25 index үүсгэгдлээ: {len(chunks)} doc")
 
+    # ── Disk-д хадгалах ──────────────────────────────────
+    def save(self, path: str = BM25_CACHE_FILE) -> None:
+        with open(path, "wb") as f:
+            pickle.dump({"docs": self.docs, "index": self.index}, f)
+        print(f"💾 BM25 index хадгалагдлаа: {path}")
+
+    # ── Disk-ээс ачаалах ─────────────────────────────────
+    def load(self, path: str = BM25_CACHE_FILE) -> bool:
+        """
+        Returns True хэрэв амжилттай ачаалсан бол.
+        """
+        try:
+            with open(path, "rb") as f:
+                data = pickle.load(f)
+            self.docs   = data["docs"]
+            self.index  = data["index"]
+            self._built = True
+            print(f"✅ BM25 index disk-ээс ачааллаа: {len(self.docs)} doc")
+            return True
+        except FileNotFoundError:
+            print(f"ℹ️  BM25 cache файл олдсонгүй ({path}) — шинээр үүсгэнэ")
+            return False
+        except Exception as e:
+            print(f"⚠️  BM25 load алдаа: {e} — шинээр үүсгэнэ")
+            return False
+
+    # ── Хайлт ────────────────────────────────────────────
     def search(self, query: str, top_k: int = 10) -> list[dict]:
-        """BM25-аар хайж score-тай chunk буцаана."""
         if not self._built or not self.docs:
             return []
         tokens = self._tokenize(query)
         scores = self.index.get_scores(tokens)
-        # top_k-г индексээр авна
         top_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
-        results = []
-        for i in top_idx:
-            if scores[i] > 0:
-                results.append({
-                    "text":   self.docs[i]["text"],
-                    "source": self.docs[i]["source"],
-                    "score":  round(float(scores[i]), 3),
-                    "method": "bm25",
-                })
-        return results
+        return [
+            {
+                "text":   self.docs[i]["text"],
+                "source": self.docs[i]["source"],
+                "score":  round(float(scores[i]), 3),
+                "method": "bm25",
+            }
+            for i in top_idx if scores[i] > 0
+        ]
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
-        """Монгол + Англи хэлд тохирсон энгийн tokenizer."""
-        import re
-        text = text.lower()
-        # Үг, тоо, товчлол
-        tokens = re.findall(r"[a-zа-яөүёA-ZА-ЯӨҮ0-9]+", text)
+        tokens = re.findall(r"[a-zа-яөүёA-ZА-ЯӨҮ0-9]+", text.lower())
         return tokens if tokens else [""]
 
 
-# Глобал instance — app.py import хийх үед ашиглана
+# Глобал instance
 bm25_index = BM25Index()
 
 
