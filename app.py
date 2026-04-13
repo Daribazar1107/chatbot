@@ -1,5 +1,5 @@
 """
-app.py — МУИС chatbot Flask backend (v3)
+app.py — NUM chatbot Flask backend (v3)
 """
 import os, time, markdown, anthropic
 from flask import Flask, render_template, request, jsonify
@@ -13,76 +13,76 @@ from retrieval import bm25_index, hybrid_search
 load_dotenv()
 app = Flask(__name__)
 
-ANTHROPIC_KEY       = os.getenv("ANTHROPIC_API_KEY")
+ANTHROPIC_KEY       = os.getenv("ANTHROPIC_API_KEY")    
 PINECONE_KEY        = os.getenv("PINECONE_API_KEY")
 INDEX_NAME          = "muis-chatbot"
 EMBED_MODEL         = "paraphrase-multilingual-mpnet-base-v2"
 RELEVANCE_THRESHOLD = 0.62
 
 TRUSTED_SOURCES = {
-    "журам.json","chuluu.json","teachers.json",
+    "chuluu.json","teachers.json",
     "courses.json","grading.json","level.json",
     "schedule.json","tuition.json",
 }
 
+
 REJECT_MESSAGE = (
-    "Уучлаарай, би зөвхөн МУИС-ийн журам, дүрэм, "
-    "академик бодлоготой холбоотой асуултад хариулах боломжтой. "
-    "Таны асуулт энэ хүрээнд хамаарахгүй байна. 🎓"
+    "Sorry, I can only answer questions related to NUM regulations, rules, "
+    "and academic policies. Your question does not fall within this scope. 🎓"
 )
 
 REJECT_TOPICS = [
-    "жор","буз","buuz","хоол хийх","жигнэх","чанах","шарах","хийх арга",
-    "гурил","тос","давс","амттан","рецепт","recipe",
-    "футбол","basketball","тоглоом","game","chess","шатар",
-    "цаг агаар","weather","бороо","цас","температур",
-    "кино","дуу","movie","music","netflix","youtube",
-    "ерөнхийлөгч","засгийн газар","эмч","эмнэлэг",
-    "хайрлах","нөхөр","найз охин","love",
+    "recipe", "buuz", "cooking", "baking", "boiling", "frying", "how to make",
+    "flour", "oil", "salt", "sweets", "recipe",
+    "football", "basketball", "game", "chess",
+    "weather", "rain", "snow", "temperature",
+    "movie", "song", "music", "netflix", "youtube",
+    "president", "government", "doctor", "hospital",
+    "love", "husband", "girlfriend",
 ]
 
-MUИС_KEYWORDS = [
-    "журам","дүрэм","бодлого","оюутан","суралцагч",
-    "элсэлт","төгсөлт","шалгалт","диплом",
-    "тэнхим","сургууль","муис","num",
-    "хичээл","бүртгэл","бүртгүүл","кредит","багц цаг","багц",
-    "курс","түвшин","хэддүгээр",
-    "gpa","голч","дүн","үнэлгээ","оноо","тэмдэглэгээ",
-    "стипенди","шагнал","тэтгэлэг",
-    " w ","wf"," f "," i "," r ","cr","ca","nr","na","rc","grading",
-    "төлбөр","хураамж","данс","сургалтын төлбөр",
-    "чөлөө","хасагдах","хасах","хасалт",
-    "дадлага","практик","хамгаалалт",
-    "багш","email","и-мэйл","утас",
-    "дотуур байр","байр",
+NUM_KEYWORDS = [
+    "regulations", "rules", "policy", "student", "learner",
+    "admission", "graduation", "exam", "diploma",
+    "department", "school", "num",
+    "course", "registration", "register", "credit", "credit hour", "credits",
+    "level", "year",
+    "gpa", "average", "grade", "evaluation", "score", "notation",
+    "stipend", "award", "scholarship",
+    " w ", "wf", " f ", " i ", " r ", "cr", "ca", "nr", "na", "rc", "grading",
+    "payment", "fee", "account", "tuition fee",
+    "leave of absence", "dismissal", "drop", "removal",
+    "internship", "practice", "defense",
+    "teacher", "professor", "email", "phone",
+    "dormitory", "housing",
 ]
 
 MN_SYNONYMS = {
-    "кредит":   "багц цаг кредит",
-    "курс":     "түвшин курс дугаар",
-    "хэддүгээр":"дугаар түвшин",
-    "голч":     "голч дүн оноо GPA",
-    "дүн":      "үнэлгээ дүн оноо тэмдэглэгээ",
-    "чөлөө":    "чөлөө авах суралцагч журам",
-    "хасах":    "сургуулиас хасах шалтгаан",
-    "төлбөр":   "сургалтын төлбөр хураамж данс",
-    "шалгалт":  "шалгалт явцын улирлын",
-    "бүртгэл":  "хичээл бүртгүүлэх сонгох",
-    "тэтгэлэг": "тэтгэлэг зээл санхүүгийн дэмжлэг",
-    "төгсөлт":  "төгсөлт дүүргэх шаардлага диплом",
-    "дадлага":  "дадлага мэргэжлийн магистр",
-    "түвшин":   "түвшин курс хэддүгээр багц цаг",
+    "credit": "credit hour credits",
+    "year": "level course year number",
+    "which": "number level",
+    "gpa": "average grade score GPA",
+    "grade": "evaluation grade score notation",
+    "leave": "take a leave student regulation",
+    "drop": "reason for dismissal from school",
+    "payment": "tuition fee fees account",
+    "exam": "exam midterm final",
+    "registration": "course registration selection",
+    "scholarship": "scholarship loan financial support",
+    "graduation": "graduation completion requirements diploma",
+    "internship": "internship professional master",
+    "level": "level course year credit hours",
 }
 
 BOOST_KEYWORDS = {
-    "W","WF","NR","NA","CA","CR","RC","GPA",
-    "ГОЛЧ","ҮНЭЛГЭЭ","ТЭМДЭГЛЭГЭЭ","КРЕДИТ","БАГЦ",
-    "ТҮВШИН","КУРС","ХАСАХ","ЧӨЛӨӨ","ТӨГСӨЛТ",
+    "W", "WF", "NR", "NA", "CA", "CR", "RC", "GPA",
+    "AVERAGE", "EVALUATION", "NOTATION", "CREDIT", "CREDITS",
+    "LEVEL", "COURSE", "DISMISSAL", "LEAVE", "GRADUATION",
 }
 
-print(f"🔧 Embedder ачааллаж байна: {EMBED_MODEL}")
+print(f"🔧 Loading embedder: {EMBED_MODEL}")
 embedder = SentenceTransformer(EMBED_MODEL)
-print("✅ Embedder бэлэн.")
+print("✅ Embedder ready.")
 
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 pc     = Pinecone(api_key=PINECONE_KEY)
@@ -91,7 +91,7 @@ index  = pc.Index(INDEX_NAME)
 
 def _build_bm25():
     if not bm25_index.load():
-        print("⚠️  BM25 ажиллахгүй — эхлээд python ingest.py ажиллуулна уу")
+        print("⚠️  BM25 is not working — run ingest.py first")
 
 _build_bm25()
 
@@ -112,7 +112,7 @@ def _dense_search(query_text: str, top_k: int) -> list[dict]:
                 continue
             result.append({
                 "text":   m.metadata.get("text",""),
-                "source": m.metadata.get("source","МУИС-ийн баримт бичиг"),
+                "source": m.metadata.get("source","NUM document"),
                 "score":  round(m.score, 3),
                 "method": "dense",
             })
@@ -124,9 +124,9 @@ def _dense_search(query_text: str, top_k: int) -> list[dict]:
 
 def classify_and_fetch(query: str, top_k: int = 12) -> dict:
     """
-    Classify + Dense retrieval нэг Pinecone query-д нэгтгэсэн.
-    Өмнө: classify Pinecone (3s) + retrieval Pinecone (3s) = 6s
-    Одоо: нэг query → ~3s хэмнэнэ.
+    Classify + Dense retrieval combined into a single Pinecone query.
+    Before: classify Pinecone (3s) + retrieval Pinecone (3s) = 6s
+    Now: one query saves ~3s.
     """
     query   = query.strip()
     q_lower = query.lower()
@@ -134,18 +134,18 @@ def classify_and_fetch(query: str, top_k: int = 12) -> dict:
     if len(query) < 3:
         return {"is_relevant": False, "method": "too_short", "matches": []}
 
-    # Шат 1: Reject blacklist — embedder-т хүрэхгүй (< 1ms)
+    # Step 1: Reject blacklist — does not reach embedder (< 1ms)
     if any(tok in q_lower for tok in REJECT_TOPICS):
         print(f"🚫 Blacklist reject: {query[:60]}")
         return {"is_relevant": False, "method": "blacklist", "matches": []}
 
-    # Шат 2: МУИС keyword pass → dense search хийж буцаана
-    if any(kw in q_lower for kw in MUИС_KEYWORDS):
+    # Step 2: NUM keyword pass → run dense search and return
+    if any(kw in q_lower for kw in NUM_KEYWORDS):
         print(f"✅ Keyword pass: {query[:60]}")
         matches = _dense_search(expand_query(query), top_k)
         return {"is_relevant": True, "method": "keyword_pass", "matches": matches}
 
-    # Шат 3: Embedding similarity — classify + retrieval нэгэн зэрэг
+    # Step 3: Embedding similarity — classify + retrieval simultaneously
     try:
         vector = embedder.encode(expand_query(query)).tolist()
         res    = index.query(vector=vector, top_k=top_k, include_metadata=True)
@@ -183,7 +183,7 @@ def classify_and_fetch(query: str, top_k: int = 12) -> dict:
 
 
 def enrich_and_rerank(query: str, dense_matches: list[dict], top_k: int = 6) -> list[dict]:
-    """HyDE өмнөх алхамд хийгдсэн тул expand + BM25 + Rerank л хийнэ."""
+    """HyDE is handled in a prior step, so only expand + BM25 + Rerank is done here."""
     try:
         rewritten   = rewrite_query(query, use_hyde=False, use_expand=True)
         expand_text = rewritten["expanded"]
@@ -199,9 +199,9 @@ def build_context_block(matches: list[dict]) -> str:
         return ""
     parts = []
     for i, m in enumerate(matches, 1):
-        src   = m.get("source","МУИС баримт")
+        src   = m.get("source","NUM document")
         score = m.get("rerank_score", m.get("score", 0))
-        parts.append(f"[Эх сурвалж {i}: {src} | score={score:.3f}]\n{m['text']}")
+        parts.append(f"[Source {i}: {src} | score={score:.3f}]\n{m['text']}")
     return "\n\n---\n\n".join(parts)
 
 
@@ -219,33 +219,33 @@ def faithfulness_check_fast(answer: str, context: str) -> bool:
     return True
 
 
-SYSTEM_BASE = """Та бол МУИС-ийн "МУИС-Туслах" чатбот юм.
+SYSTEM_BASE = """You are the "NUM Assistant" chatbot for the National University of Mongolia.
 
-ХЭЛНИЙ ЗААВАР:
-- "кредит"="багц цаг", "курс"="түвшин", "хэддүгээр"="дугаар түвшин"
-- "голч"="голч дүн/GPA", "дүн"="үнэлгээ", "хасах"="сургуулиас хасах"
-- Монгол хэлний ямар ч хэлбэрийг утгаар нь ойлго.
+LANGUAGE INSTRUCTIONS:
+- "credit" = "credit hour", "course" = "level", "which year" = "level number"
+- "GPA" = "grade point average", "grade" = "evaluation", "drop" = "dismissed from school"
+- Understand any phrasing and respond based on its meaning.
 
-АЖИЛЛАХ ДҮРЭМ:
-1. Зөвхөн доор өгсөн КОНТЕКСТ-ийн мэдээллийг ашигла.
-2. Контекстэд байхгүй мэдээллийг өөрийн мэдлэгээр нэмэхийг ХОРИГЛОНО.
-3. Контекстэд хариулт байгаа бол заавал тодорхой, бүрэн хариул.
-4. Контекстэд огт хариулт байхгүй бол:
-   "Уучлаарай, миний мэдээллийн санд энэ тухай мэдээлэл байхгүй байна." гэж хариул.
-5. Тоон мэдээлэл (багц цаг, түвшин, хувь, оноо, төлбөр) яг зөв дамжуул.
-6. Үсгэн тэмдэглэгээ (W, WF, I, R, F, CA, NR) асуувал тус бүрийн тайлбарыг өг.
-7. Багшийн мэдээлэл асуувал email, утас, тэнхимийг тодорхой хэлэх.
-8. Монгол хэлээр товч, цэгцтэй хариул.
+OPERATING RULES:
+1. Use ONLY the information provided in the CONTEXT below.
+2. DO NOT add information from your own knowledge that is not in the context.
+3. If the context contains an answer, respond clearly and completely.
+4. If the context contains no relevant answer, respond with:
+   "Sorry, I don't have information about this in my knowledge base."
+5. Pass numeric information (credit hours, levels, percentages, scores, fees) exactly as given.
+6. If asked about grade notations (W, WF, I, R, F, CA, NR), explain each one.
+7. If asked about a teacher, clearly state their email, phone, and department.
+8. Respond in English, concisely and clearly.
 
-БҮТЦИЙН ЗААВАР:
-- Хүснэгт хэлбэрийн мэдээлэл → Markdown хүснэгт ашигла
-- Заалтын дугаар байвал → дурдаж хариул
-- "Багшаар уулз","захиргаанд ханд" гэх ерөнхий зөвлөгөө өгөхгүй"""
+FORMATTING INSTRUCTIONS:
+- Tabular information → use Markdown tables
+- If a clause number is available → mention it in the response
+- Do NOT give generic advice such as "see your professor" or "contact the administration" """
 
 
 def build_system_prompt(context: str) -> str:
-    ctx = context if context else "Мэдээллийн санд холбогдох баримт олдсонгүй."
-    return f"{SYSTEM_BASE}\n\nКОНТЕКСТ:\n{ctx}"
+    ctx = context if context else "No relevant documents found in the knowledge base."
+    return f"{SYSTEM_BASE}\n\nCONTEXT:\n{ctx}"
 
 
 @app.route("/")
@@ -263,9 +263,9 @@ def chat():
     history      = data.get("history",[])
 
     if not user_message:
-        return jsonify({"error": "Хоосон асуулт"}), 400
+        return jsonify({"error": "Empty question"}), 400
 
-    # ── 1. Classify + Dense (нэгдсэн, нэг Pinecone query) ─
+    # ── 1. Classify + Dense (combined, single Pinecone query) ─
     t0     = time.perf_counter()
     clf    = classify_and_fetch(
         user_message,
@@ -318,8 +318,8 @@ def chat():
 
         if not passed:
             raw_text += (
-                "\n\n*⚠️ Зарим мэдээлэл баримтад байхгүй байж болзошгүй. "
-                "МУИС-ийн холбогдох нэгжээс лавлана уу.*"
+                "\n\n*⚠️ Some information may not be present in the source documents. "
+                "Please verify with the relevant NUM department.*"
             )
 
         html_text = markdown.markdown(raw_text, extensions=["tables","nl2br","fenced_code"])
@@ -343,11 +343,11 @@ def chat():
         })
 
     except anthropic.APIStatusError as e:
-        msgs = {429:"⏳ Хэт олон хүсэлт.",401:"❌ API key буруу.",529:"❌ Сервер ачаалалтай."}
-        return jsonify({"error": msgs.get(e.status_code, f"❌ Claude алдаа ({e.status_code})")}), 500
+        msgs = {429:"⏳ Too many requests.",401:"❌ Invalid API key.",529:"❌ Server overloaded."}
+        return jsonify({"error": msgs.get(e.status_code, f"❌ Claude error ({e.status_code})")}), 500
     except Exception as e:
         print(f"❌ Chat error: {e}")
-        return jsonify({"error": f"Алдаа гарлаа: {str(e)}"}), 500
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
 @app.route("/health")

@@ -1,51 +1,51 @@
 {
-  "id": "5_чөлөө_хасалт",
-  "бүлэг": "ТАВ. Суралцагч чөлөө авах, үргэлжлүүлэн суралцах, сургуулиас чөлөөлөх, хасах",
-  "таг": ["чөлөө", "хасалт", "үргэлжлүүлэн суралцах"],
-  "заалтууд": [
+  "id": "5_leave_dismissal",
+  "group": "FIVE. Taking Leave, Continuing Studies, Withdrawal, and Dismissal",
+  "tags": ["leave", "dismissal", "continuing studies"],
+  "provisions": [
     {
-      "заалт": "5.1.1",
-      "агуулга": "Суралцагч хүндэтгэн үзэх шалтгаанаар 3 долоо хоногоос дээш хугацаагаар хичээлд сууж чадахгүй бол Сургалтын үйл ажиллагаа хариуцсан нэгжид улирлын эсвэл жилийн чөлөө авах хүсэлтээ цахимаар гаргана."
+      "provision": "5.1.1",
+      "content": "If a student is unable to attend classes for more than 3 weeks due to valid reasons, they shall submit a request for a semester or academic year leave of absence electronically to the unit responsible for academic activities."
     },
     {
-      "заалт": "5.1.2",
-      "агуулга": "Нэг удаагийн чөлөөний хугацаа 2 хүртэл улирал. Нийт чөлөөний хугацаа 2 жилээс хэтрэхгүй. Цэргийн жинхэнэ алба, жирэмсний болон хүүхэд асрах чөлөө, эмчийн зөвлөгөөний шийдвэрээр суралцах боломжгүй болсон тохиолдол нийт хугацаанд тооцохгүй."
+      "provision": "5.1.2",
+      "content": "The duration of a single leave of absence is up to 2 semesters. The total duration of leave shall not exceed 2 years. Periods of active military service, pregnancy and childcare leave, or cases where study is impossible due to a medical board decision shall not be counted towards the total duration."
     },
     {
-      "заалт": "5.1.3",
-      "агуулга": "Улирлын чөлөөг тухайн улирлын эхнээс тооцож олгоно."
+      "provision": "5.1.3",
+      "content": "Semester leave shall be calculated and granted from the beginning of the respective semester."
     },
     {
-      "заалт": "5.1.4",
-      "агуулга": "Чөлөө олгох тухай Сургалтын үйл ажиллагаа хариуцсан нэгжийн шийдвэрийг үндэслэн Бүрэлдэхүүн сургуулийн захирлын тушаалаар баталгаажуулна."
+      "provision": "5.1.4",
+      "content": "Based on the decision of the unit responsible for academic activities to grant leave, it shall be formalized by an order from the Director of the component school."
     },
     {
-      "заалт": "5.1.6",
-      "агуулга": "Суралцагчийн чөлөөтэй байсан хугацааг суралцсан хугацаанд тооцохгүй."
+      "provision": "5.1.6",
+      "content": "The period during which a student was on leave shall not be counted towards the duration of study."
     },
     {
-      "заалт": "5.1.7",
-      "агуулга": "21 хоногоос богино чөлөөг хичээл зааж буй багшид бичгээр эсвэл цахимаар хүсэлт гаргаж, тухайн багш шийдвэрлэнэ."
+      "provision": "5.1.7",
+      "content": "Leave of less than 21 days shall be requested in writing or electronically to the instructor teaching the course, and the instructor shall make the decision."
     },
     {
-      "заалт": "5.2.1",
-      "агуулга": "Чөлөөний хугацаа дууссан суралцагч хичээл эхлэхээс 14-өөс доошгүй хоногийн өмнө үргэлжлүүлэн суралцах хүсэлтээ гаргана. Бүрэлдэхүүн сургуулийн захирлын тушаалаар баталгаажуулж, суралцагчийн төлөвийг идэвхжүүлнэ."
+      "provision": "5.2.1",
+      "content": "A student whose leave period has ended shall submit a request to continue their studies at least 14 days before the start of classes. This shall be formalized by an order from the Director of the component school, and the student's status shall be activated."
     },
     {
-      "заалт": "5.2.3",
-      "агуулга": "Чөлөөний хугацаа хэтэрч эргэн суралцаагүй суралцагчийг идэвхгүй суралцаж байгаа төлөвт шилжүүлнэ."
+      "provision": "5.2.3",
+      "content": "A student who has exceeded their leave period and failed to return to study shall be transferred to 'inactive' student status."
     },
     {
-      "заалт": "5.3.2",
-      "агуулга": "Суралцагчийг дараах шалтгаанаар МУИС-ийн захирлын тушаалаар сургуулиас хасна: 4 улирал сургалтад оролцоогүй; 3 улирал дараалан голч дүн 0.7-оос доош; Ерөнхий суурийн хөтөлбөрт 4+ улирал мэргэжил сонголтгүй суралцсан; Мэдлэгийг хуурч мэхэлсэн нь тогтоогдсон; Бусдад санаатайгаар хуулуулсан; МУИС-ийн мэдээллийн системд санаатай мэдээлэл өөрчилсөн, устгасан; МУИС-ийн баримт бичиг хуурамчаар үйлдсэн; Ноцтой ёс зүйн зөрчил гаргасан; Гэмт хэрэг үйлдсэн."
+      "provision": "5.3.2",
+      "content": "A student shall be dismissed from NUM by an order of the President of NUM for the following reasons: failure to participate in training for 4 semesters; GPA below 0.7 for 3 consecutive semesters; remaining in the general foundation program for 4+ semesters without selecting a major; confirmed cases of academic dishonesty; intentionally allowing others to cheat; intentional alteration or deletion of information in the NUM information system; forging NUM documents; committing serious ethical violations; or committing a crime."
     },
     {
-      "заалт": "5.3.3",
-      "агуулга": "Тухайн улиралд чөлөө аваагүй, тодорхой шалтгаангүйгээр хичээл огт судлаагүй эсвэл голч дүн 0 авсан суралцагчийг 'сургалтад оролцоогүй' гэж үзнэ."
+      "provision": "5.3.3",
+      "content": "A student who did not take a leave of absence during the given semester and failed to study any courses without a specific reason, or received a GPA of 0, shall be considered as 'not participated in training'."
     },
     {
-      "заалт": "5.3.4",
-      "агуулга": "Улирал бүрийн төгсгөлд хасагдах нөхцөлд дөхсөн суралцагчдад сануулах мэдээллийг хүргэнэ."
+      "provision": "5.3.4",
+      "content": "At the end of each semester, warning information shall be delivered to students who are approaching the conditions for dismissal."
     }
   ]
 }

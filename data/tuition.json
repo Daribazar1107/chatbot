@@ -1,46 +1,46 @@
 [
   {
-    "turuul": "tulbur_zaavar",
-    "surguuli": "Мэдээллийн технологи, электроникийн сургууль (МТЭС)",
-    "bank": "Голомт банк",
-    "dans_dugaar": "MN100015008125102476",
-    "dans_ner": "МУИС - МЭДЭЭЛЛИЙН ТЕХНОЛОГИ",
-    "guilgeenii_utga": "Суралцагчийн дугаар (Жишээ нь: 23B1NUM5132)",
-    "hugatsaa": "10-20 минут",
-    "text": "МУИС-ийн МТЭС-ийн сургалтын төлбөр төлөх заавар: Голомт банкны MN100015008125102476 тоот дансанд (Нэр: МУИС-МЭДЭЭЛЛИЙН ТЕХНОЛОГИ) гүйлгээ хийнэ. Гүйлгээний утга хэсэгт суралцагчийн дугаараа (23B1NUM****) зөв бичсэн тохиолдолд 10-20 минутын дараа SISI дансны үлдэгдэл цэнэглэгдэнэ. Буруу бичсэн тохиолдолд харьяа сургуулийн нягтланд хандана уу.",
-    "source": "SISI төлбөр төлөх заавар"
+    "type": "payment_instruction",
+    "school": "School of Engineering and Applied Sciences (SEAS)",
+    "bank": "Golomt Bank",
+    "account_number": "MN100015008125102476",
+    "account_name": "NUM - INFORMATION TECHNOLOGY",
+    "transaction_description": "Student ID (e.g., 23B1NUM5132)",
+    "processing_time": "10-20 minutes",
+    "text": "Instruction for paying tuition fees at NUM SEAS: Make a transaction to Golomt Bank account MN100015008125102476 (Name: NUM-INFORMATION TECHNOLOGY). If the student ID (23B1NUM****) is written correctly in the transaction description, the SISI account balance will be topped up after 10-20 minutes. If entered incorrectly, please contact the accountant of your affiliated school.",
+    "source": "SISI Payment Instructions"
   },
   {
-    "hicheeliin_jil": "2025-2026",
-    "elseltiin_ue": "2024-2025 оны хичээлийн жилээс өмнө элсэгчид",
-    "surguuli": "Мэдээллийн технологи, электроникийн сургууль",
-    "tulbur": {
-      "erunkhii_suuri": 135600,
-      "mergejliin_suuri": 134500
+    "academic_year": "2025-2026",
+    "enrollment_period": "Students enrolled before 2024-2025 academic year",
+    "school": "School of Engineering and Applied Sciences",
+    "tuition": {
+      "general_foundation": 135600,
+      "major_foundation": 134500
     },
-    "text": "2025-2026 оны хичээлийн жилд 2024-2025 оноос өмнө элссэн МТЭС-ийн оюутнуудын нэг багц цагийн төлбөр: Ерөнхий суурь хичээл 135,600 төгрөг, Мэргэжлийн суурь хичээл 134,500 төгрөг байна.",
-    "source": "МУИС-ийн төлбөрийн тариф 2025"
+    "text": "Tuition fee per credit hour for SEAS students who enrolled before 2024-2025 for the 2025-2026 academic year: General Foundation course 135,600 MNT, Major Foundation course 134,500 MNT.",
+    "source": "NUM Tuition Fees Tariff 2025"
   },
   {
-    "hicheeliin_jil": "2025-2026",
-    "elseltiin_ue": "2024-2025 оны хичээлийн жилд элсэгчид",
-    "surguuli": "Мэдээллийн технологи, электроникийн сургууль",
-    "tulbur": {
-      "erunkhii_suuri": 168100,
-      "mergejliin_suuri": 180200
+    "academic_year": "2025-2026",
+    "enrollment_period": "Students enrolled in 2024-2025 academic year",
+    "school": "School of Engineering and Applied Sciences",
+    "tuition": {
+      "general_foundation": 168100,
+      "major_foundation": 180200
     },
-    "text": "2025-2026 оны хичээлийн жилд 2024-2025 онд элссэн МТЭС-ийн оюутнуудын нэг багц цагийн төлбөр: Ерөнхий суурь хичээл 168,100 төгрөг, Мэргэжлийн суурь хичээл 180,200 төгрөг байна.",
-    "source": "МУИС-ийн төлбөрийн тариф 2025"
+    "text": "Tuition fee per credit hour for SEAS students who enrolled in 2024-2025 for the 2025-2026 academic year: General Foundation course 168,100 MNT, Major Foundation course 180,200 MNT.",
+    "source": "NUM Tuition Fees Tariff 2025"
   },
   {
-    "hicheeliin_jil": "2025-2026",
-    "elseltiin_ue": "2025-2026 оны хичээлийн жилд элсэгчид",
-    "surguuli": "Мэдээллийн технологи, электроникийн сургууль",
-    "tulbur": {
-      "erunkhii_suuri": 177100,
-      "mergejliin_suuri": 189900
+    "academic_year": "2025-2026",
+    "enrollment_period": "Students enrolling in 2025-2026 academic year",
+    "school": "School of Engineering and Applied Sciences",
+    "tuition": {
+      "general_foundation": 177100,
+      "major_foundation": 189900
     },
-    "text": "2025-2026 оны хичээлийн жилд шинээр элсэгч (2025-2026) МТЭС-ийн оюутнуудын нэг багц цагийн төлбөр: Ерөнхий суурь хичээл 177,100 төгрөг, Мэргэжлийн суурь хичээл 189,900 төгрөг байна.",
-    "source": "МУИС-ийн төлбөрийн тариф 2025"
+    "text": "Tuition fee per credit hour for new SEAS students enrolling in 2025-2026 for the 2025-2026 academic year: General Foundation course 177,100 MNT, Major Foundation course 189,900 MNT.",
+    "source": "NUM Tuition Fees Tariff 2025"
   }
 ]

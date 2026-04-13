@@ -1,50 +1,130 @@
 [
   {
-    "Хичээлийн_индекс": "ICSI303",
-    "Монгол_нэр": "Программ хангамжийн шаардлагын шинжилгээ",
-    "Багц_цаг": 3,
-    "Зэрэг": "Бакалавр",
-    "Товч_агуулга": "Програм хангамж хөгжүүлэхэд хамгийн эхэнд гүйцэтгэдэг, чухал процес болох шаардлага хөгжүүлэлттэй танилцана. Огт хөгжүүлээгүй эсвэл дутуу хөгжүүлсэн шаардлага нь системийн цаашдын хөгжүүлэлт болон төслийн үр дүнд маш муугаар нөлөөлдөг. Иймд энэ хичээлийн зорилго нь оюутнуудад шаардлага хөгжүүлэх үйл явцын ач холбогдлыг ойлгуулах, улмаар бие дааж шаардлага хөгжүүлэх чадварыг эзэмшүүлэхэд оршино.",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ICSI303",
+    "Course_Name": "Software Requirements Analysis",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Introduces requirements development, which is the first and most crucial process in software development. Requirements that are not developed at all or are underdeveloped have a very negative impact on the subsequent development of the system and project results. Therefore, the goal of this course is to help students understand the importance of the requirements development process and acquire the skills to develop requirements independently.",
+    "Department": "Department of Information and Computer Science"
   },
   {
-    "Хичээлийн_индекс": "ICSI601",
-    "Монгол_нэр": "Ахисан түвшний алгоритм",
-    "Багц_цаг": 3,
-    "Зэрэг": "Магистр",
-    "Товч_агуулга": "",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ICSI601",
+    "Course_Name": "Advanced Algorithms",
+    "Credit_Hours": 3,
+    "Level": "Master",
+    "Brief_Content": "",
+    "Department": "Department of Information and Computer Science"
   },
   {
-    "Хичээлийн_индекс": "ICSI262",
-    "Монгол_нэр": "Компьютер графикийн үндэс",
-    "Багц_цаг": 3,
-    "Зэрэг": "Бакалавр",
-    "Товч_агуулга": "Компьютерын шинжлэх ухааны нэг чухал бөгөөд эрчимтэй хөгжиж байгаа салбарын нэг нь компьютерын график юм. Энэхүү салбар нь урлаг, анагаах ухаан, энтертайнмент, аж үйлдвэр, дэд бүтэц зэрэг олон салбарт өргөнөөр ашиглагдаж байна. Иймд компьютер графикын онол түүний хэрэглээтэй танилцаж, програмчлах арга техникийг эзэмшихэд энэхүү хичээлийн үндсэн зорилго оршино.",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ICSI262",
+    "Course_Name": "Fundamentals of Computer Graphics",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Computer graphics is one of the important and rapidly developing fields of computer science. This field is widely used in many sectors such as art, medicine, entertainment, industry, and infrastructure. Thus, the primary goal of this course is to introduce the theory of computer graphics and its applications, and to help students master programming techniques.",
+    "Department": "Department of Information and Computer Science"
   },
   {
-    "Хичээлийн_индекс": "ITCS101",
-    "Монгол_нэр": "Хиймэл оюун ба их өгөгдөл (Ерөнхий суурь)",
-    "Багц_цаг": 3,
-    "Зэрэг": "Бакалавр",
-    "Товч_агуулга": "“Хиймэл оюун ба их өгөгдөл” хичээлийн зорилго нь оюутнуудад өгөгдөлд суурилсан сэтгэлгээ, хиймэл оюуны (AI) суурь ойлголт, зарчим, хэрэглээний хүрээний талаарх мэдлэгийг олгож, тэдгээрийг бодит амьдрал, нийгэм, мэргэжлийн орчинд шүүмжлэлтэй, хариуцлагатай, ёс зүйтэйгээр хэрэглэх чадвар, хандлага төлөвшүүлэхэд оршино.\r\nОюутан уг хичээлээр дамжуулан:\r\n- Өгөгдөлд суурилж асуулт тавих, шийдвэр гаргах, хандлага илрүүлэх арга барилд суралцана,\r\n- Хиймэл оюуны системийн үндсэн зарчмыг ойлгоно,\r\n- Өөрий",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ITCS101",
+    "Course_Name": "Artificial Intelligence and Big Data (General Foundation)",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "The goal of the 'Artificial Intelligence and Big Data' course is to provide students with knowledge about data-driven thinking, basic concepts, principles, and application areas of Artificial Intelligence (AI), and to develop their ability and attitude to apply them critically, responsibly, and ethically in real life, society, and professional environments. Through this course, students will: learn to ask questions and make decisions based on data, discover trends; understand the basic principles of AI systems; and develop their own...",
+    "Department": "Department of Information and Computer Science"
   },
   {
-    "Хичээлийн_индекс": "ICSI203",
-    "Монгол_нэр": "Магадлал статистик",
-    "Багц_цаг": 3,
-    "Зэрэг": "Бакалавр",
-    "Товч_агуулга": "(Санамсаргүй үзэгдэл, түүн дээрх үйлдлүүд, Магадлал, түүний тодорхойлолтууд, чанарууд, Комбинаторикийн элементүүд, Нөхцөлт магадлал, Үл хамаарах чанар, Гүйцэд магадлалын томъёо, Байесын томъёо ба түүний өргөтгөл, Бернуллийн схем, Полином схем, Дискрет ба тасралтгүй санамсаргүй хэмжигдэхүүн, Тархалтын хууль, Санамсаргүй хэмжигдэхүүний нягт, Санамсаргүй хэмжигдэхүүний тоон үзүүлэлтүүд, Их тооны хууль, хязгаарын гол теорем, Бернуллийн схем дэх хязгаарын теоремууд: Пуассоны томъёо, Муавр-Лапласын ло",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ICSI203",
+    "Course_Name": "Probability and Statistics",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "(Random events, operations on them, Probability, its definitions and properties, elements of Combinatorics, Conditional probability, Independence, Law of total probability, Bayes' theorem and its extensions, Bernoulli scheme, Polynomial scheme, Discrete and continuous random variables, Distribution laws, Density of random variables, Numerical indicators of random variables, Law of large numbers, Central limit theorem, Limit theorems in the Bernoulli scheme: Poisson's formula, Moivre-Laplace formula...)",
+    "Department": "Department of Information and Computer Science"
   },
   {
-    "Хичээлийн_индекс": "ICSI331",
-    "Монгол_нэр": "Виртуал систем",
-    "Багц_цаг": 3,
-    "Зэрэг": "Бакалавр",
-    "Товч_агуулга": "Томоохон байгууллагын үйлчилгээ эсвэл компьютерийн системийн хүчин чадал хэрэглэгчид дамжуулах өгөгдөл, тооцоолох ажил, хэрэглэгчийн тоо, хандалтын давтамж зэргээс шалтгаалж тогтмол нэмэгдэж нарийн түвэгтэй бүтэцтэй болж байна. Үүнийг үүлэн технологи, програм болон техникийн үр ашигтай зохион байгуулж системийг вируалчлах, түүнтэй холбоотой нээлттэй эхийн компонентуудаар кластер шийдэл боловсруулах, виртуал суурь бүтцэд\r\nшаардлагатай сүлжээ-хадгалуур зохион байгуулах зэргээр шийдвэрлэж байна. Эд",
-    "Тэнхим": "Мэдээлэл, компьютерийн ухааны тэнхим"
+    "Course_Index": "ICSI331",
+    "Course_Name": "Virtual Systems",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "The capacity of services or computer systems in large organizations is constantly increasing and becoming more complex due to data transmission, computational tasks, the number of users, and access frequency. This is being addressed by efficiently organizing cloud technology, software, and hardware to virtualize systems, developing cluster solutions using related open-source components, and organizing network storage necessary for virtual infrastructure. These...",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI201",
+    "Course_Name": "Data Structures",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Focuses on the organization, management, and storage format of data that enables efficient access and modification. Includes arrays, linked lists, stacks, queues, trees, and graphs.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI301",
+    "Course_Name": "Operating Systems",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Covers the fundamental concepts of operating systems, including process management, memory management, file systems, and input/output systems.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI305",
+    "Course_Name": "Database Management Systems",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Introduces the design, implementation, and management of relational databases, including SQL, normalization, and transaction processing.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI204",
+    "Course_Name": "Object-Oriented Programming",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Teaches the principles of OOP including encapsulation, inheritance, and polymorphism, typically using languages like Java or C++.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI402",
+    "Course_Name": "Machine Learning",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Explores algorithms that allow computers to learn from and make predictions on data. Covers supervised, unsupervised, and reinforcement learning.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI342",
+    "Course_Name": "Computer Networks",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Study of the hardware and software used in computer networking, covering layers of the OSI model, TCP/IP, and network security protocols.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI401",
+    "Course_Name": "Cybersecurity Fundamentals",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "An introduction to protecting systems, networks, and programs from digital attacks, including encryption, firewalls, and risk assessment.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI321",
+    "Course_Name": "Web Development",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Covers both front-end and back-end development, including HTML, CSS, JavaScript, and server-side frameworks.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI202",
+    "Course_Name": "Discrete Mathematics",
+    "Credit_Hours": 3,
+    "Level": "Bachelor",
+    "Brief_Content": "Mathematical structures that are fundamentally discrete rather than continuous, covering logic, set theory, and graph theory.",
+    "Department": "Department of Information and Computer Science"
+  },
+  {
+    "Course_Index": "ICSI605",
+    "Course_Name": "Advanced Data Mining",
+    "Credit_Hours": 3,
+    "Level": "Master",
+    "Brief_Content": "Advanced study of extracting patterns and knowledge from large datasets using statistical and computational techniques.",
+    "Department": "Department of Information and Computer Science"
   }
 ]

@@ -2,166 +2,167 @@
   {
     "id": "grading_scale",
     "type": "table",
-    "title": "Хувьчилсан оноо, үсгэн болон тоон дүн хөрвүүлэх хүснэгт",
+    "title": "Conversion Table for Percentage Scores, Letter Grades, and Grade Points",
     "content": [
-      { "оноо": "95-100", "үсгэн_дүн": "A+", "тоон_дүн": 4.0 },
-      { "оноо": "90-94", "үсгэн_дүн": "A", "тоон_дүн": 3.7 },
-      { "оноо": "87-89", "үсгэн_дүн": "B+", "тоон_дүн": 3.3 },
-      { "оноо": "83-86", "үсгэн_дүн": "B", "тоон_дүн": 3.0 },
-      { "оноо": "80-82", "үсгэн_дүн": "B-", "тоон_дүн": 2.7 },
-      { "оноо": "77-79", "үсгэн_дүн": "C+", "тоон_дүн": 2.3 },
-      { "оноо": "73-76", "үсгэн_дүн": "C", "тоон_дүн": 2.0 },
-      { "оноо": "70-72", "үсгэн_дүн": "C-", "тоон_дүн": 1.7 },
-      { "оноо": "65-69", "үсгэн_дүн": "D", "тоон_дүн": 1.3 },
-      { "оноо": "60-64", "үсгэн_дүн": "D-", "тоон_дүн": 1.0 },
-      { "оноо": "0-59", "үсгэн_дүн": "F", "тоон_дүн": 0 }
+      { "score": "95-100", "letter_grade": "A+", "grade_point": 4.0 },
+      { "score": "90-94", "letter_grade": "A", "grade_point": 3.7 },
+      { "score": "87-89", "letter_grade": "B+", "grade_point": 3.3 },
+      { "score": "83-86", "letter_grade": "B", "grade_point": 3.0 },
+      { "score": "80-82", "letter_grade": "B-", "grade_point": 2.7 },
+      { "score": "77-79", "letter_grade": "C+", "grade_point": 2.3 },
+      { "score": "73-76", "letter_grade": "C", "grade_point": 2.0 },
+      { "score": "70-72", "letter_grade": "C-", "grade_point": 1.7 },
+      { "score": "65-69", "letter_grade": "D", "grade_point": 1.3 },
+      { "score": "60-64", "letter_grade": "D-", "grade_point": 1.0 },
+      { "score": "0-59", "letter_grade": "F", "grade_point": 0 }
     ]
   },
   {
     "id": "grade_definitions",
     "type": "definitions",
-    "title": "Үсгэн дүнгийн чанарын тайлбар",
+    "title": "Qualitative Descriptions of Letter Grades",
     "content": {
-      "A+_A": "Сурлагын дээд амжилт. Хичээлийн агуулгыг дээд зэрэг бүрэн гүйцэд, бүтээлчээр ойлгосон.",
-      "B+_B": "Дээгүүр амжилт. Хичээлийн агуулгыг сайн ойлгосон, ухагдахуун ашиглах ур чадвартай.",
-      "C+_C": "Дундаж амжилт. Хичээлийн агуулгыг хангалттай ойлгосон, судлах бэлтгэлтэй.",
-      "D": "Дундаж түвшнээс доогуур. Ухагдахуун жигд ойлгоогүй, мэдлэг, ур чадвар, хандлага дутмаг.",
-      "F": "Хангалтгүй. Хичээлийн ухагдахуун ойлгоогүй, мэдлэг, ур чадвар, хандлага хангалтгүй."
+      "A+_A": "Academic Excellence. Full and creative understanding of the course content at the highest level.",
+      "B+_B": "Above Average Achievement. Good understanding of the course content, with skills to apply concepts.",
+      "C+_C": "Average Achievement. Satisfactory understanding of the course content, prepared for further study.",
+      "D": "Below Average. Concepts not consistently understood; lacks sufficient knowledge, skills, and attitude.",
+      "F": "Inadequate. Failed to understand course concepts; knowledge, skills, and attitude are insufficient."
     }
-  },{
+  },
+  {
     "id": "student_evaluation_rules",
     "type": "regulation_section",
-    "title": "4.5 Суралцагчийн мэдлэг, ур чадвар, хандлагын үнэлгээ",
+    "title": "4.5 Evaluation of Student Knowledge, Skills, and Attitude",
     "content": [
       {
-        "заалт": "4.5.1",
-        "агуулга": "Суралцагчийн хичээлээр эзэмшсэн мэдлэг, ур чадвар, хандлагыг бие даан суралцах үйл ажиллагааг хөхиүлэн дэмжих, хөгжүүлэх зарчмыг удирдлага болгон дүгнэх бөгөөд үнэлгээ нь шинжлэх ухааны үндэслэлтэй, бодитой, шударга, ил тод байна."
+        "clause": "4.5.1",
+        "description": "The evaluation of knowledge, skills, and attitudes acquired by the learner shall be guided by the principle of encouraging and developing independent learning activities. Evaluation must be scientifically based, objective, fair, and transparent."
       },
       {
-        "заалт": "4.5.4",
-        "түлхүүр_үг": ["GPA бодох", "голч оноо", "томьёо"],
-        "агуулга": "Голч оноо, голч дүнг бодох томьёо: ГО(ГД) = Σ(Кᵢ × Оᵢ) / ΣКᵢ. Энд Кᵢ = тухайн хичээлийн багц цаг, Оᵢ = тухайн хичээлийн оноо/дүн. Таслалаас хойш нэг орны нарийвчлалтай бодно."
+        "clause": "4.5.4",
+        "keywords": ["GPA calculation", "Grade Point Average", "formula"],
+        "description": "Formula for calculating Grade Point Average (GPA): GPA = Σ(Kᵢ × Oᵢ) / ΣKᵢ. Where Kᵢ = credit hours of the course, Oᵢ = score/grade of the course. Calculated with one decimal place precision."
       },
       {
-        "заалт": "4.5.13",
-        "агуулга": "Тухайн хичээлээр суралцагчийн эзэмшсэн мэдлэг, ур чадвар, хандлагыг явцын үнэлгээ болон улирлын шалгалтын үнэлгээ тус бүрийг зохих хэмжээгээр тооцон 100 оноогоор үнэлнэ (Хавсралт 1-ийн дагуу)."
+        "clause": "4.5.13",
+        "description": "The knowledge, skills, and attitude acquired by the learner in a given course shall be evaluated out of 100 points, factoring in both continuous assessment and final examination results accordingly (per Appendix 1)."
       },
       {
-        "заалт": "4.5.14",
-        "түлхүүр_үг": ["тэнцэх оноо", "F дүн", "амжилттай"],
-        "агуулга": "60 ба түүнээс дээш оноо авбал амжилттайд тооцож, багц цаг цуглуулна. 60-аас бага оноо авбал 'хангалтгүй' (F) гэж үзэж, багц цаг биелүүлээгүйд тооцно."
+        "clause": "4.5.14",
+        "keywords": ["passing score", "F grade", "successful"],
+        "description": "A score of 60 or above is considered successful and earns credits. A score below 60 is considered 'inadequate' (F) and counts as failing to fulfill the credit requirement."
       },
       {
-        "заалт": "4.5.15",
-        "агуулга": "Нэгдсэн шалгалт болон эрдэм шинжилгээний ажлыг 100 оноогоор үнэлнэ. 60+ оноо авбал 'тооцов' (S); 60-аас доош оноо авбал 'үл тооцов' (U) гэж дүгнэнэ."
+        "clause": "4.5.15",
+        "description": "Comprehensive exams and research work are evaluated out of 100 points. A score of 60+ results in 'Satisfactory' (S); a score below 60 results in 'Unsatisfactory' (U)."
       },
       {
-        "заалт": "4.5.19",
-        "агуулга": "Шалгагч багш хичээлийн дүнг улирлын шалгалт авсан өдрөөс хойш ажлын 5 хоногийн дотор сургалтын мэдээллийн системд оруулах үүрэгтэй."
+        "clause": "4.5.19",
+        "description": "Instructors are required to enter course grades into the learning management system within 5 working days after the date of the final exam."
       },
       {
-        "заалт": "4.5.21",
-        "агуулга": "Хичээлийн дүнг заасан хугацаанд оруулаагүй бол 'МУИС-ийн хөдөлмөрийн дотоод журам'-ын дагуу хариуцлага тооцно."
+        "clause": "4.5.21",
+        "description": "Failure to enter course grades within the specified period will result in liability according to the 'NUM Internal Labor Regulations'."
       },
       {
-        "заалт": "4.5.22",
-        "агуулга": "Магистрантын эрдэм шинжилгээний ажлын 4 багц цаг, докторантын 12 багц цагийг 4.3.14-р заалтыг баримтлан тооцно."
+        "clause": "4.5.22",
+        "description": "The 4 credits of research work for master's students and 12 credits for doctoral students shall be calculated in accordance with clause 4.3.14."
       },
       {
-        "заалт": "4.5.29",
-        "түлхүүр_үг": ["дахин судлах", "амжилтгүй дүн"],
-        "агуулга": "Заавал судлах хичээлийг амжилтгүй дүн авсан, мөн R, W, WF, U үнэлгээтэй суралцагч тухайн хичээлийн багц цагийг биелүүлэхийн тулд дахин судална."
+        "clause": "4.5.29",
+        "keywords": ["retake", "failing grade"],
+        "description": "Students who receive a failing grade in a core course, or those with R, W, WF, or U evaluations, must retake the course to fulfill the credit requirement."
       },
       {
-        "заалт": "4.5.30",
-        "түлхүүр_үг": ["R үнэлгээ", "дүн ахиулах", "хязгаар"],
-        "агуулга": "Суралцагч амжилттай судалсан хичээлийг дахин судалж болно (R үнэлгээ тавиулна). Суралцах хугацаанд дахин судлах хичээлийн тоо 3 хүртэл. Хос хөтөлбөрөөр суралцагч нь хөтөлбөр бүрээр 3 хүртэл хичээл дахин судалж болно."
+        "clause": "4.5.30",
+        "keywords": ["R grade", "grade improvement", "limit"],
+        "description": "A student may retake a course they have already passed (assigned an R grade). The number of courses a student can retake during their period of study is limited to 3. Dual degree students may retake up to 3 courses per program."
       },
       {
-        "заалт": "4.5.33",
-        "түлхүүр_үг": ["W үнэлгээний хязгаар", "татгалзах"],
-        "агуулга": "Суралцах хугацаанд W үнэлгээг (хичээлээс татгалзах) 6-аас илүү хэрэглэхийг хориглоно."
+        "clause": "4.5.33",
+        "keywords": ["W grade limit", "withdrawal"],
+        "description": "The use of the W grade (withdrawal from a course) is prohibited more than 6 times during the period of study."
       },
       {
-        "заалт": "4.5.41",
-        "түлхүүр_үг": ["хуулах", "шилбэ", "ёс зүйн зөрчил"],
-        "агуулга": "Шалгалтын дэг журам (хуулах, өөрийн нэрээр бусдыг оруулах, зөвшөөрөгдөөгүй материал ашиглах гэх мэт) зөрчсөн суралцагчид F дүн тавьж, ёс суртахууны зөрчилд тооцно. Давтагдвал Бүрэлдэхүүн сургуулийн захиргааны зөвлөл эсвэл МУИС-ийн Ёс зүйн хороогоор хэлэлцэнэ."
+        "clause": "4.5.41",
+        "keywords": ["cheating", "plagiarism", "ethical violation"],
+        "description": "Students who violate examination rules (cheating, impersonation, using unauthorized materials, etc.) will receive an F grade and be cited for an ethical violation. Repeated offenses will be discussed by the School Administration Board or the NUM Ethics Committee."
       },
       {
-        "заалт": "4.5.51",
-        "түлхүүр_үг": ["дүнгийн гомдол", "маргаан шийдвэрлэх"],
-        "агуулга": "Суралцагч хичээлийн дүнгийн гомдолтой бол тухайн хичээлийг судалсны дараагийн улирлын эхний 14 хоногт багш руу хандана. Шийдвэрлэгдэхгүй бол Сургалтын үйл ажиллагаа хариуцсан нэгжид гомдол гаргана."
+        "clause": "4.5.51",
+        "keywords": ["grade appeal", "dispute resolution"],
+        "description": "If a student has a grievance regarding a grade, they must contact the instructor within the first 14 days of the following semester. If unresolved, a complaint can be filed with the Academic Affairs unit."
       }
     ]
   },
   {
     "id": "special_notations",
     "type": "definitions",
-    "title": "Тусгай үсгэн тэмдэглэгээ болон үнэлгээний тайлбар",
+    "title": "Special Letter Notations and Evaluation Descriptions",
     "content": [
       {
-        "тэмдэглэгээ": "W",
-        "өөр_нэршил": [
-          "W үнэлгээ",
-          "W тэмдэглэгээ",
-          "W дүн",
-          "Хичээлээс татгалзах",
+        "notation": "W",
+        "aliases": [
+          "W evaluation",
+          "W notation",
+          "W grade",
+          "Course withdrawal",
           "Withdraw"
         ],
-        "тайлбар": "Хичээлийн агуулгын 2/3-аас багагүйг судалсан, явцын үнэлгээ 60%+ хангасан боловч эцсийн шалгалтаас татгалзах хүсэлт. Голч дүнд (GPA) нөлөөлөхгүй."
+        "description": "A request to withdraw from the final exam after completing at least 2/3 of the course content with a continuous assessment score of 60%+. Does not affect GPA."
       },
       {
-        "тэмдэглэгээ": "WF",
-        "өөр_нэршил": [
-          "WF үнэлгээ",
-          "WF тэмдэглэгээ",
-          "WF дүн",
+        "notation": "WF",
+        "aliases": [
+          "WF evaluation",
+          "WF notation",
+          "WF grade",
           "Withdrawal fail"
         ],
-        "тайлбар": "(Withdrawal Fail) Суралцагч хичээлийн аль нэг хэлбэрийн 1/3-ээс илүүд суугаагүй тохиолдолд багш тухайн хичээлийн улирал дуусахаас 7 хоногийн өмнө тавих тэмдэглэгээ. Хугацаа өнгөрсөн тохиолдолд уг тэмдэглэгээг тавих боломжгүй."
+        "description": "(Withdrawal Fail) A notation assigned by the instructor 7 days before the end of the semester if a student has missed more than 1/3 of any form of the course activities. This notation cannot be assigned after the deadline has passed."
       },
       {
-        "тэмдэглэгээ": "I",
-        "өөр_нэршил": [
-          "I үнэлгээ",
-          "I тэмдэглэгээ",
-          "I дүн",
-          "Дутуу үнэлгээ",
+        "notation": "I",
+        "aliases": [
+          "I evaluation",
+          "I notation",
+          "I grade",
+          "Incomplete grade",
           "Incomplete"
         ],
-        "тайлбар": "Хүндэтгэн үзэх шалтгаанаар явцын үнэлгээ дутуу эсвэл шалгалтад ороогүй тохиолдолд тавина. Дараагийн улирлын эхний 14 хоногт нөхөн гүйцэтгэнэ."
+        "description": "Assigned when continuous assessment is incomplete or the final exam was missed due to valid excuses. Must be completed within the first 14 days of the next semester."
       },
       {
-        "тэмдэглэгээ": "F",
-        "өөр_нэршил": ["F үнэлгээ", "F дүн", "Унах", "Fail"],
-        "тайлбар": "Хангалтгүй. Хичээлийн ухагдахуун ойлгоогүй, мэдлэг, ур чадвар, хандлага хангалтгүй. GPA бодоход 0 гэж тооцогдоно."
+        "notation": "F",
+        "aliases": ["F evaluation", "F grade", "Fail"],
+        "description": "Inadequate. Failed to understand course concepts; knowledge, skills, and attitude are insufficient. Calculated as 0 in GPA."
       },
       {
-        "тэмдэглэгээ": "NR",
-        "өөр_нэршил": [
-          "NR үнэлгээ",
-          "NR тэмдэглэгээ",
-          "Дүн тавигдаагүй",
+        "notation": "NR",
+        "aliases": [
+          "NR evaluation",
+          "NR notation",
+          "Grade not reported",
           "No Report"
         ],
-        "тайлбар": "Багш хугацаандаа дүгнээгүй тохиолдолд систем автоматаар тавина. Дүнгийн гомдол маргааны хугацаа дуусмагц автоматаар харгалзах үсгэн дүнд шилжинэ."
+        "description": "Automatically assigned by the system if the instructor fails to submit grades on time. It will automatically convert to the corresponding letter grade once the appeal period ends."
       },
       {
-        "тэмдэглэгээ": "CA",
-        "өөр_нэршил": ["CA үнэлгээ", "CA тэмдэглэгээ", "Чөлөө", "Cancelled"],
-        "тайлбар": "Цэргийн алба, хорио цээр, гэнэтийн осол, мэс засал зэрэг шалтгаанаар чөлөө авах тохиолдолд систем тавина."
+        "notation": "CA",
+        "aliases": ["CA evaluation", "CA notation", "Leave of absence", "Cancelled"],
+        "description": "Assigned by the system in cases of leave for military service, quarantine, emergencies, or surgery."
       },
       {
-        "тэмдэглэгээ": "R",
-        "өөр_нэршил": ["R үнэлгээ", "R тэмдэглэгээ", "Дахин судлах", "Repeat"],
-        "тайлбар": "Амжилттай судалсан хичээлийг дүн ахиулах зорилгоор дахин судлах хүсэлт гаргасан тохиолдолд тавина."
+        "notation": "R",
+        "aliases": ["R evaluation", "R notation", "Retake", "Repeat"],
+        "description": "Assigned when a request is made to retake a successfully completed course for the purpose of improving the grade."
       }
     ]
   },
   {
     "id": "distribution_standards",
     "type": "standards",
-    "title": "Дүнгийн хуваарилалтын стандарт (Хөндлөнгийн шалгалт)",
+    "title": "Grade Distribution Standards (External/Standardized Exams)",
     "content": {
       "A+_A": "0-25%",
       "B+_B": "15-30%",
@@ -173,12 +174,12 @@
   {
     "id": "evaluation_methodology",
     "type": "methodology",
-    "title": "Суралцагчийн мэдлэг, ур чадвар, хандлагыг үнэлэх аргачлал",
-    "formula": "Нийт оноо (O) = Явцын үнэлгээ (O1) + Улирлын шалгалт (O2)",
+    "title": "Methodology for Evaluating Student Knowledge, Skills, and Attitude",
+    "formula": "Total Score (O) = Continuous Assessment (O1) + Semester Final Exam (O2)",
     "details": {
-      "O1_progress": "Явцын үнэлгээ (70-80 оноо): Багш улирлыг хамгийн багадаа 3 хэсэгт хуваан дүгнэнэ. Хэлбэрүүд: идэвх, асуулт хариулт, семинар, лаборатори, бие даалт, тайлан, кейс, явцын шалгалт.",
-      "O2_exam": "Улирлын шалгалт (20-30 оноо).",
-      "precision": "Үнэлгээ нь бүхэл тоон нарийвчлалтай байна."
+      "O1_progress": "Continuous Assessment (70-80 points): The instructor evaluates the semester by dividing it into at least 3 parts. Forms include: participation, Q&A, seminars, laboratories, independent assignments, reports, case studies, and mid-term exams.",
+      "O2_exam": "Semester Final Exam (20-30 points).",
+      "precision": "Evaluations shall be accurate to the nearest whole number."
     }
   }
 ]

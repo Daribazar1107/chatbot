@@ -1,39 +1,39 @@
 {
   "id": "student_levels_by_credits",
   "type": "regulation_table",
-  "title": "Нийт цуглуулсан багц цагаар суралцагчийн түвшинг тодорхойлох",
+  "title": "Determining Student Levels Based on Total Earned Credits",
   "content": [
     {
-      "хөтөлбөр": "Бакалавр",
-      "түвшин": [
-        {"нэр": "1-р түвшин", "багц_цаг": "0-30"},
-        {"нэр": "2-р түвшин", "багц_цаг": "31-60"},
-        {"нэр": "3-р түвшин", "багц_цаг": "61-90"},
-        {"нэр": "4-р түвшин", "багц_цаг": "91+"},
-        {"нэр": "5-р түвшин (ХЗС)", "багц_цаг": "121+"}
+      "program": "Bachelor",
+      "levels": [
+        {"name": "Level 1", "credit_hours": "0-30"},
+        {"name": "Level 2", "credit_hours": "31-60"},
+        {"name": "Level 3", "credit_hours": "61-90"},
+        {"name": "Level 4", "credit_hours": "91+"},
+        {"name": "Level 5 (Law School)", "credit_hours": "121+"}
       ],
-      "түлхүүр_үг": ["бакалавр түвшин", "курс", "хэддүгээр курс", "багц цаг"]
+      "keywords": ["bachelor level", "course", "year of study", "credit hours"]
     },
     {
-      "хөтөлбөр": "Магистр",
-      "түвшин": [
-        {"нэр": "1-р түвшин", "багц_цаг": "0-15"},
-        {"нэр": "2-р түвшин", "багц_цаг": "16+"}
+      "program": "Master",
+      "levels": [
+        {"name": "Level 1", "credit_hours": "0-15"},
+        {"name": "Level 2", "credit_hours": "16+"}
       ],
-      "түлхүүр_үг": ["магистр түвшин", "магистрант курс"]
+      "keywords": ["master level", "graduate student course"]
     },
     {
-      "хөтөлбөр": "Доктор",
-      "түвшин": [
-        {"нэр": "1-р түвшин", "багц_цаг": "0-24"},
-        {"нэр": "2-р түвшин", "багц_цаг": "25-36"},
-        {"нэр": "3-р түвшин", "багц_цаг": "37+"}
+      "program": "Doctor",
+      "levels": [
+        {"name": "Level 1", "credit_hours": "0-24"},
+        {"name": "Level 2", "credit_hours": "25-36"},
+        {"name": "Level 3", "credit_hours": "37+"}
       ],
-      "түлхүүр_үг": ["доктор түвшин", "докторант курс"]
+      "keywords": ["doctoral level", "doctoral student course"]
     }
   ],
   "metadata": {
-    "source": "МУИС-ийн сургалтын үйл ажиллагааны журам",
-    "description": "Суралцагчийн багц цаг болон түвшин хоорондын хамаарал"
+    "source": "NUM Academic Regulations",
+    "description": "Correlation between student credits and academic levels"
   }
 }

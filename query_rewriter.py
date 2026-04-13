@@ -1,10 +1,10 @@
 """
 query_rewriter.py — Query Rewriter module
 Fixes:
-  - HyDE-г зөвхөн урт/нарийн асуулттай үед ажиллуулна (богино асуулт → алгасна)
-  - Expand + HyDE-г concurrent дуудна → хурд 2x сайжирна
-  - Expand хэт олон keyword нэмэхгүй байхаар хязгаарлана
-  - Алдааны fallback сайжирсан
+  - HyDE only runs on long/complex queries (short queries are skipped)
+  - Expand + HyDE are called concurrently → 2x speed improvement
+  - Expand is limited to avoid adding too many keywords
+  - Improved error fallback handling
 """
 
 import os, concurrent.futures
@@ -14,25 +14,25 @@ from dotenv import load_dotenv
 load_dotenv()
 _client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-# Богино/энгийн асуулт → HyDE шаардлагагүй
-HYDE_MIN_LEN = 15  # тэмдэгтийн тоо
+# Short/simple queries → HyDE not needed
+HYDE_MIN_LEN = 15  # character count threshold
 
 
 # ── HyDE ─────────────────────────────────────────────────
-HYDE_SYSTEM = """Та МУИС-ийн сургалтын журмын мэргэжилтэн.
-Хэрэглэгчийн асуултад МУИС-ийн журмын хэлбэрээр МАШ ТОВЧ хариу бич.
-Дүрэм:
-- Зөвхөн 1-3 өгүүлбэр
-- Журмын нэр томьёо, заалтын дугаарыг ашигла
-- Зөвхөн МУИС-ийн боловсролтой холбоотой мэдээлэл бич
-- Мэдэхгүй бол хамгийн ойрын журмын зарчмаар таамагла
-- Монгол хэлээр"""
+HYDE_SYSTEM = """You are an expert in NUM (National University of Mongolia) academic regulations.
+Given a user's question, write a VERY SHORT hypothetical answer in the style of NUM regulations.
+Rules:
+- Only 1-3 sentences
+- Use NUM terminology and clause numbers where applicable
+- Only include information related to NUM academic matters
+- If unsure, make a reasonable guess based on the closest relevant regulation
+- Respond in English"""
 
 
 def hyde(query: str) -> str:
     """
     Hypothetical Document Embedding.
-    Богино асуулт (< HYDE_MIN_LEN тэмдэгт) үед алгасна — хурд хэмнэнэ.
+    Skips short queries (< HYDE_MIN_LEN characters) to save time.
     """
     if len(query.strip()) < HYDE_MIN_LEN:
         return query
@@ -47,28 +47,28 @@ def hyde(query: str) -> str:
         hypo = resp.content[0].text.strip()
         return f"{query}\n{hypo}"
     except Exception as e:
-        print(f"⚠️ HyDE алдаа: {e}")
+        print(f"⚠️ HyDE error: {e}")
         return query
 
 
 # ── Query Expansion ───────────────────────────────────────
-EXPAND_SYSTEM = """Та МУИС-ийн сургалтын журмын мэргэжилтэн.
-Хэрэглэгчийн асуултыг хайлт сайжруулахаар өргөтгө.
-Дүрэм:
-- Анхны асуултыг ӨӨРЧЛӨХГҮЙ — зөвхөн ОЙРОЛЦОО УТГАТАЙ нэмэлт үгс нэм
-- Хамгийн ихдээ 6 нэмэлт үг (таслалаар тусгаарла)
-- МУИС-ийн нэр томьёог ашигла
-- Хэрэв асуулт аль хэдийн тодорхой бол яг анхны асуултыг буцаа
-Гаралт: анхны асуулт + нэмэлт үгс (нэг мөр)
-Жишээ:
-  Орц: голч дүн гэж юу вэ
-  Гаралт: голч дүн гэж юу вэ, GPA, голч оноо, 4.0 систем, оноо бодох
-Монгол хэлээр."""
+EXPAND_SYSTEM = """You are an expert in NUM (National University of Mongolia) academic regulations.
+Expand the user's query to improve search retrieval.
+Rules:
+- Do NOT modify the original query — only ADD related synonym keywords
+- Maximum 6 additional words (comma-separated)
+- Use NUM academic terminology
+- If the query is already specific enough, return it exactly as-is
+Output format: original query + additional keywords (single line)
+Example:
+  Input:  what is GPA
+  Output: what is GPA, grade point average, cumulative score, 4.0 scale, calculate GPA
+Respond in English."""
 
 
 def expand(query: str) -> str:
     """
-    Keyword өргөтгөл — хэт олон keyword нэмэхгүй.
+    Keyword expansion — avoids adding too many keywords.
     """
     try:
         resp = _client.messages.create(
@@ -79,31 +79,30 @@ def expand(query: str) -> str:
             messages=[{"role": "user", "content": query}],
         )
         result = resp.content[0].text.strip()
-        # Хэрэв хариу хэт урт буцаасан бол анхны асуулт хадгалж, 
-        # зөвхөн эхний хэсгийг авна
+        # If the response is too long, keep only the original query
         if len(result) > len(query) * 3:
             return query
         return result
     except Exception as e:
-        print(f"⚠️ Expand алдаа: {e}")
+        print(f"⚠️ Expand error: {e}")
         return query
 
 
-# ── Нэгдсэн rewrite (concurrent) ─────────────────────────
+# ── Combined rewrite (concurrent) ────────────────────────
 def rewrite(query: str, use_hyde: bool = True, use_expand: bool = True) -> dict:
     """
-    Expand + HyDE-г зэрэг дуудаж хурдыг сайжруулна.
+    Calls Expand + HyDE concurrently to improve speed.
 
     Returns:
         {
           "original": str,
-          "hyde":     str,   # embed хийхэд ашиглана
-          "expanded": str,   # нэмэлт хайлтад ашиглана
+          "hyde":     str,   # used for embedding
+          "expanded": str,   # used for additional search
         }
     """
     result = {"original": query, "hyde": query, "expanded": query}
 
-    # Богино асуулт → rewrite шаардлагагүй
+    # Short queries → no rewrite needed
     if len(query.strip()) < 5:
         return result
 
@@ -118,10 +117,10 @@ def rewrite(query: str, use_hyde: bool = True, use_expand: bool = True) -> dict:
             try:
                 result[key] = fut.result(timeout=5)
             except Exception as e:
-                print(f"⚠️ Rewrite {key} алдаа: {e}")
-                # fallback: анхны асуулт
+                print(f"⚠️ Rewrite {key} error: {e}")
+                # fallback: use original query
 
-    if use_hyde:    print(f"📝 HyDE: {result['hyde'][:80]}...")
-    if use_expand:  print(f"🔍 Expand: {result['expanded'][:80]}")
+    if use_hyde:   print(f"📝 HyDE: {result['hyde'][:80]}...")
+    if use_expand: print(f"🔍 Expand: {result['expanded'][:80]}")
 
     return result
