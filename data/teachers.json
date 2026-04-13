@@ -14,6 +14,13 @@
     "email": "bilguun.e@num.edu.mn, info_site@num.edu.mn"
   },
   {
+    "name": "Ts.Enkhtuya",
+    "department": "Department of Information and Computer Science",
+    "room_number": "8-207",
+    "phone": "94140478",
+    "email": "enkhtuya.ts@num.edu.mn"
+  },
+  {
     "name": "A.Baatarbileg",
     "department": "Department of Information and Computer Science",
     "room_number": "Unknown",
@@ -131,12 +138,5 @@
     "room_number": "Unknown",
     "phone": "Unknown",
     "email": "naranbat@num.edu.mn"
-  },
-  {
-    "name": "Ts.Enkhtuya",
-    "department": "Department of Information and Computer Science",
-    "room_number": "8-207",
-    "phone": "94140478",
-    "email": "enkhtuya.ts@num.edu.mn"
   }
 ]

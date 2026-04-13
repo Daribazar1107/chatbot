@@ -1,10 +1,19 @@
-python_dotenv
-pinecone
-sentence_transformers
-flask
-markdown
-anthropic
-pypdf2
-python-docx
-redis
-rank-bm25 
+# requirements.txt — Python dependencies for the NUM chatbot
+#
+# Install all at once:
+#   pip install -r requirements.txt
+
+python_dotenv          # Loads .env file into os.environ so API keys don't have to be hardcoded
+pinecone               # Pinecone client — vector database queries in app.py and ingest.py
+sentence-transformers  # SentenceTransformer (embedder) and CrossEncoder (reranker) in retrieval.py
+flask                  # Web framework — HTTP routes, request parsing, SSE streaming
+markdown               # Converts Claude's Markdown output to HTML for the browser
+anthropic>=0.30        # Anthropic SDK — needs >=0.30 for .messages.stream() (SSE streaming)
+pypdf2                 # Reads PDF files during ingestion (ingest.py)
+python-docx            # Reads .docx Word files during ingestion (ingest.py)
+redis                  # Redis client — stores and retrieves cached answers in cache.py
+rank-bm25              # BM25Okapi — keyword search index in retrieval.py
+requests               # HTTP library used internally by sentence-transformers and huggingface_hub
+
+# NOTE: concurrent.futures, anthropic, and dotenv were previously used by query_rewriter.py.
+# That file has been deleted. All its dependencies are still needed by other modules above.

@@ -1,407 +1,1104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unified Access Environment</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", Arial, sans-serif; background: #f3f6fb; color: #23314f; overflow: hidden; height: 100vh; }
-
-    .topbar { height: 52px; background: linear-gradient(90deg, #1a4fa0, #3a9de0); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: white; }
-    .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; }
-    .grid-icon { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 18px; cursor: pointer; }
-    .grid-icon span { width: 7px; height: 7px; background: white; border-radius: 1px; display: block; }
-    .topbar-right { display: flex; align-items: center; gap: 14px; }
-    .notif-icon { font-size: 19px; cursor: pointer; opacity: 0.9; }
-    .top-avatar { width: 36px; height: 36px; border-radius: 50%; background: #c8d8f0; cursor: pointer; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-
-    .layout { display: grid; grid-template-columns: 220px 1fr 360px; height: calc(100vh - 52px); }
-
-    .sidebar { background: #fff; border-right: 1px solid #dde4f0; display: flex; flex-direction: column; overflow-y: auto; }
-    .sidebar-profile { display: flex; align-items: center; gap: 12px; padding: 18px 16px 16px; border-bottom: 1px solid #edf1f7; }
-    .profile-avatar { width: 46px; height: 46px; border-radius: 50%; background: #c8d8f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-    .profile-name { font-size: 12px; color: #7a88a0; margin-bottom: 2px; }
-    .profile-fullname { font-size: 14px; font-weight: 700; color: #1a2744; }
-    .sidebar-nav { padding: 10px 0; flex: 1; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; font-size: 14px; color: #5d6780; cursor: pointer; border-left: 3px solid transparent; transition: 0.15s; }
-    .nav-item:hover { background: #f5f7fc; color: #1a4fa0; }
-    .nav-item.active { color: #1a4fa0; font-weight: 600; background: #f0f5ff; border-left-color: #1a4fa0; }
-    .nav-icon { font-size: 18px; width: 22px; text-align: center; opacity: 0.8; }
-
-    .main { overflow-y: auto; background: #f3f6fb; }
-    .main-header { padding: 18px 28px 14px; border-bottom: 1px solid #dde4f0; background: #fff; }
-    .main-title { font-size: 19px; font-weight: 700; color: #1a2744; margin-bottom: 3px; }
-    .main-subtitle { font-size: 13px; color: #7a88a0; }
-    .main-body { padding: 22px 28px; }
-    .section-label { font-size: 14px; font-weight: 600; color: #8a96ad; margin-bottom: 16px; }
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-    .cards.two-col { grid-template-columns: repeat(2, 1fr); }
-    .card { background: #fff; border-radius: 14px; padding: 18px; display: flex; align-items: center; gap: 16px; border: 1px solid #e4eaf4; box-shadow: 0 2px 8px rgba(26,79,160,0.05); cursor: pointer; transition: 0.2s ease; min-height: 90px; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,79,160,0.10); border-color: #c5d6f0; }
-    .card-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; background: #eef3ff; }
-    .card-title { font-size: 15px; font-weight: 700; color: #1a2744; margin-bottom: 4px; }
-    .card-desc { font-size: 12px; color: #7a88a0; line-height: 1.4; }
-
-    .right-panel { background: #fff; border-left: 1px solid #dde4f0; display: flex; flex-direction: column; overflow: hidden; }
-    .news-section { padding: 16px 18px; border-bottom: 1px solid #edf1f7; }
-    .panel-section-title { font-size: 13px; font-weight: 600; color: #8a96ad; margin-bottom: 12px; }
-    .news-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .news-arrow { border: none; background: none; cursor: pointer; font-size: 18px; color: #1a4fa0; font-weight: 700; padding: 2px 6px; }
-    .news-slide-title { font-size: 14px; font-weight: 700; color: #1a4fa0; text-align: center; flex: 1; padding: 0 4px; }
-    .news-body { font-size: 13px; line-height: 1.65; color: #49566f; max-height: 160px; overflow: hidden; }
-    .dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #c9d3e4; cursor: pointer; transition: background 0.2s; }
-    .dot.active { background: #1a4fa0; }
-    .schedule-section { padding: 16px 18px; flex: 1; overflow-y: auto; }
-    .schedule-year { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .schedule-year-label { font-size: 14px; font-weight: 700; color: #1a4fa0; }
-    .week-label { text-align: center; font-size: 14px; font-weight: 700; color: #1a4fa0; margin-bottom: 14px; }
-    .schedule-list { display: flex; flex-direction: column; gap: 14px; }
-    .schedule-item { border-top: 1px solid #edf1f7; padding-top: 12px; }
-    .schedule-item-title { font-size: 13px; font-weight: 700; color: #1a2744; margin-bottom: 4px; line-height: 1.4; }
-    .schedule-item-date { font-size: 12px; color: #8a96ad; }
-
-    /* ═══════════════════════════════════════════
-       FLOATING CHATBOT (BLUE THEME)
-    ═══════════════════════════════════════════ */
-
-    .chatbot-launcher {
-      position: fixed; right: 24px; bottom: 24px; width: 60px; height: 60px;
-      background: linear-gradient(135deg, #1a4fa0, #3a9de0); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      box-shadow: 0 4px 16px rgba(26, 79, 160, 0.4); z-index: 1000; transition: transform 0.2s ease;
-    }
-    .chatbot-launcher:hover { transform: scale(1.05); }
-    .chatbot-launcher.active { display: none; }
-    .launcher-icon { font-size: 30px; }
-
-    .chatbot-widget {
-      position: fixed; right: 24px; bottom: 24px; width: 380px; height: 600px;
-      max-height: 85vh; background: #fff; border-radius: 24px; display: none;
-      flex-direction: column; box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-      z-index: 1001; overflow: hidden; animation: slideIn 0.3s ease; border: 1px solid #e4eaf4;
-    }
-    .chatbot-widget.active { display: flex; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    .chatbot-header {
-      background: #fff; padding: 16px 20px; display: flex; align-items: center;
-      justify-content: space-between; border-bottom: 1px solid #f0f0f0;
-    }
-    .chat-brand { display: flex; align-items: center; gap: 12px; }
-    .chat-avatar-wrap {
-      width: 32px; height: 32px; background: linear-gradient(135deg, #1a4fa0, #3a9de0);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;
-    }
-    .chat-brand-name { font-size: 14px; font-weight: 700; color: #1a2744; }
-    .chat-controls { display: flex; gap: 8px; }
-    .chat-control-btn { border: none; background: none; font-size: 20px; color: #8a96ad; cursor: pointer; transition: color 0.2s; }
-    .chat-control-btn:hover { color: #1a4fa0; }
-
-    .chatbot-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
-    .messages { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
-
-    .chat-center { padding: 20px; text-align: center; }
-    .chat-date { font-size: 12px; color: #999; margin-bottom: 10px; }
-    .chat-welcome { font-size: 20px; font-weight: 700; color: #1a2744; margin-bottom: 16px; }
-    .quick-list { display: flex; flex-direction: column; gap: 8px; }
-    .quick-item {
-      background: #f0f5ff; border: 1px solid #d0dff5; padding: 12px 16px;
-      border-radius: 12px; font-size: 13px; color: #1a4fa0;
-      text-align: left; cursor: pointer; transition: all 0.2s;
-    }
-    .quick-item:hover { background: #e6f0ff; border-color: #1a4fa0; transform: translateX(5px); }
-
-    .msg-row { display: flex; width: 100%; margin-bottom: 4px; }
-    .msg-row.user { justify-content: flex-end; }
-    .msg.user {
-      background: linear-gradient(135deg, #1a4fa0, #3a9de0); color: #fff;
-      padding: 10px 14px; border-radius: 16px 16px 4px 16px; font-size: 13px; max-width: 80%;
-      box-shadow: 0 2px 8px rgba(26,79,160,0.2);
-    }
-    .msg.bot {
-      background: #f1f3f6; color: #23314f; padding: 10px 14px;
-      border-radius: 16px 16px 16px 4px; font-size: 13px; max-width: 80%; border: 1px solid #e4eaf4;
-    }
-    .bot-rich table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
-    .bot-rich th, .bot-rich td { border: 1px solid #ddd; padding: 4px; text-align: left; }
-    .bot-rich strong { color: #1a4fa0; }
-
-    .input-area { padding: 16px; border-top: 1px solid #f0f0f0; background: #fff; }
-    .input-row { display: flex; align-items: center; background: #f3f6fb; border-radius: 24px; padding: 4px 4px 4px 16px; border: 1px solid #dde4f0; }
-    .chat-input { flex: 1; border: none; background: transparent; outline: none; font-size: 13px; color: #23314f; }
-    .send-btn {
-      width: 36px; height: 36px; border: none; border-radius: 50%;
-      background: #1a4fa0; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-    }
-    .send-btn:hover { background: #143d7a; }
-    .send-btn svg { width: 16px; fill: #fff; }
-
-    .typing { display: flex; gap: 4px; padding: 10px; }
-    .typing span { width: 6px; height: 6px; background: #1a4fa0; opacity: 0.4; border-radius: 50%; animation: bounce 1.2s infinite; }
-    .typing span:nth-child(2) { animation-delay: 0.2s; }
-    .typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
-
-    .hidden { display: none !important; }
-
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar, .right-panel { display: none; }
-      .chatbot-widget { width: 100%; height: 100%; right: 0; bottom: 0; border-radius: 0; }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="grid-icon"><span></span><span></span><span></span><span></span></div>
-      Unified Access Environment
-    </div>
-    <div class="topbar-right">
-      <div class="notif-icon">🔔</div>
-      <div class="top-avatar">👤</div>
-    </div>
-  </div>
-
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-profile">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name">Munkh-Bayasgalan</div>
-          <div class="profile-fullname">BAT-AMGALAN</div>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-item active"><span class="nav-icon">🏠</span> Home</div>
-        <div class="nav-item"><span class="nav-icon">👤</span> Personal Information</div>
-        <div class="nav-item"><span class="nav-icon">🕐</span> Login History</div>
-        <div class="nav-item"><span class="nav-icon">🛡️</span> Data Permissions</div>
-        <div class="nav-item"><span class="nav-icon">📋</span> Data Access History</div>
-        <div class="nav-item"><span class="nav-icon">📄</span> Contracts</div>
-        <div class="nav-item"><span class="nav-icon">💬</span> FAQ</div>
-        <div class="nav-item"><span class="nav-icon">📖</span> User Guide</div>
-      </nav>
-    </aside>
-
-    <main class="main">
-      <div class="main-header">
-        <div class="main-title">Information Technology</div>
-        <div class="main-subtitle">School of Information Technology and Electronics</div>
-      </div>
-      <div class="main-body">
-        <div class="section-label">Academic & Research</div>
-        <div class="cards">
-          <div class="card">
-            <div class="card-icon" style="background:#eef3ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="2" y="2" width="16" height="16" rx="3" fill="#4a7ee0"/><rect x="22" y="2" width="16" height="16" rx="3" fill="#7ab0f5"/><rect x="2" y="22" width="16" height="16" rx="3" fill="#7ab0f5"/><rect x="22" y="22" width="16" height="16" rx="3" fill="#4a7ee0"/></svg>
-            </div>
-            <div><div class="card-title">SISi</div><div class="card-desc">Student Information & Learning Management System</div></div>
-          </div>
-          <div class="card">
-            <div class="card-icon" style="background:#e8f4ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="4" y="6" width="10" height="28" rx="2" fill="#3a9de0"/><rect x="16" y="6" width="10" height="28" rx="2" fill="#5bb3f0"/><rect x="28" y="6" width="8" height="28" rx="2" fill="#3a9de0"/></svg>
-            </div>
-            <div><div class="card-title">Koha</div><div class="card-desc">Library Information System</div></div>
-          </div>
-          <div class="card">
-            <div class="card-icon" style="background:#fff7e6;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><rect x="4" y="8" width="12" height="24" rx="2" fill="#f5a623"/><rect x="18" y="4" width="12" height="28" rx="2" fill="#e8920a"/><rect x="10" y="12" width="12" height="20" rx="2" fill="#fbbf24"/></svg>
-            </div>
-            <div><div class="card-title">Koha</div><div class="card-desc">Digital Library</div></div>
-          </div>
-          <div class="card">
-            <div class="card-icon" style="background:#f4f4f4;font-size:13px;font-weight:900;color:#222;border-radius:8px;letter-spacing:-0.5px;">edX</div>
-            <div><div class="card-title">edX</div><div class="card-desc">Online Learning Platform</div></div>
-          </div>
-        </div>
-        <div class="section-label">Institutional Services</div>
-        <div class="cards two-col">
-          <div class="card">
-            <div class="card-icon" style="background:#fff3ec;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><circle cx="14" cy="14" r="8" fill="#f97316"/><circle cx="26" cy="14" r="8" fill="#fbbf24"/><circle cx="14" cy="26" r="8" fill="#ef4444"/><circle cx="26" cy="26" r="8" fill="#f97316"/></svg>
-            </div>
-            <div><div class="card-title">NUM Career</div><div class="card-desc">Career Development Support Services</div></div>
-          </div>
-          <div class="card">
-            <div class="card-icon" style="background:#f0f4ff;">
-              <svg width="34" height="34" viewBox="0 0 40 40" fill="none"><path d="M20 4C20 4 34 13 34 24C34 31 27 36 20 36C13 36 6 31 6 24C6 13 20 4 20 4Z" fill="#6264A7"/><path d="M20 4C20 4 6 13 6 24C6 31 13 36 20 36" fill="#464775"/><circle cx="20" cy="23" r="7" fill="white" opacity="0.2"/></svg>
-            </div>
-            <div><div class="card-title">Microsoft 365</div><div class="card-desc">Outlook, OneDrive, Teams, Calendar, Planner ...</div></div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <aside class="right-panel">
-      <div class="news-section">
-        <div class="panel-section-title">Announcements</div>
-        <div class="news-nav">
-          <button class="news-arrow" id="newsPrev">&#8249;</button>
-          <div class="news-slide-title" id="newsTitle"></div>
-          <button class="news-arrow" id="newsNext">&#8250;</button>
-        </div>
-        <div class="news-body" id="newsBody"></div>
-        <div class="dots" id="newsDots"></div>
-      </div>
-      <div class="schedule-section">
-        <div class="panel-section-title">Academic Year Schedule</div>
-        <div class="schedule-year">
-          <div class="schedule-year-label">2025–2026, Spring Semester</div>
-          <div>📅</div>
-        </div>
-        <div class="week-label">∧ Week 8</div>
-        <div class="schedule-list">
-          <div class="schedule-item"><div class="schedule-item-title">Apply for Dual / Combined Degree Program</div><div class="schedule-item-date">Mar 01 – Mar 31</div></div>
-          <div class="schedule-item"><div class="schedule-item-title">Submit Graduation Request</div><div class="schedule-item-date">Mar 09 – Apr 10</div></div>
-          <div class="schedule-item"><div class="schedule-item-title">Midterm Examinations</div><div class="schedule-item-date">Mar 17 – Mar 28</div></div>
-          <div class="schedule-item"><div class="schedule-item-title">Final Exam Registration</div><div class="schedule-item-date">Mar 20 – Apr 05</div></div>
-        </div>
-      </div>
-    </aside>
-  </div>
-
-  <!-- Chatbot Launcher -->
-  <div class="chatbot-launcher" id="chatLauncher" onclick="toggleChat()">
-    <span class="launcher-icon">🤖</span>
-  </div>
-
-  <!-- Chatbot Widget -->
-  <div class="chatbot-widget" id="chatbotWidget">
-    <div class="chatbot-header">
-      <div class="chat-brand">
-        <div class="chat-avatar-wrap">🤖</div>
-        <div class="chat-brand-name">NUM Assistant</div>
-      </div>
-      <div class="chat-controls">
-        <button class="chat-control-btn" id="newChat" title="New conversation">↺</button>
-        <button class="chat-control-btn" onclick="toggleChat()" title="Close">×</button>
-      </div>
-    </div>
-
-    <div class="chatbot-body">
-      <div id="chatIntro" class="chat-center">
-        <div class="chat-date" id="todayDate"></div>
-        <div class="chat-welcome">Hello there 👋</div>
-        <div class="quick-list">
-          <button class="quick-item" data-val="W grade">W Grade</button>
-          <button class="quick-item" data-val="R grade">R Grade</button>
-          <button class="quick-item" data-val="G grade">G Grade</button>
-          <button class="quick-item" data-val="Calculate GPA">Calculate GPA</button>
-          <button class="quick-item" data-val="Leave of absence / Withdrawal">Leave of Absence / Withdrawal</button>
-        </div>
-      </div>
-      <div class="messages" id="chatMessages"></div>
-    </div>
-
-    <div class="input-area">
-      <div class="input-row">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type your question..." />
-        <button class="send-btn" id="sendBtn">
-          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // News Slider
-    const news = [
-      { title: "Assignment", body: "A new assignment has been added to your \"Information Security\" course." },
-      { title: "Midterm Exams", body: "Midterm examinations will be held from Mar 17 to Mar 28." },
-      { title: "Notice", body: "The deadline to apply for a dual degree program is Mar 31." },
-    ];
-    let newsIdx = 0;
-    function renderNews() {
-      document.getElementById("newsTitle").textContent = news[newsIdx].title;
-      document.getElementById("newsBody").textContent  = news[newsIdx].body;
-      const dots = document.getElementById("newsDots");
-      dots.innerHTML = news.map((_, i) => `<div class="dot ${i===newsIdx?'active':''}" data-i="${i}"></div>`).join("");
-      dots.querySelectorAll(".dot").forEach(d => d.addEventListener("click", () => { newsIdx=+d.dataset.i; renderNews(); }));
-    }
-    document.getElementById("newsPrev").addEventListener("click", () => { newsIdx=(newsIdx-1+news.length)%news.length; renderNews(); });
-    document.getElementById("newsNext").addEventListener("click", () => { newsIdx=(newsIdx+1)%news.length; renderNews(); });
-    renderNews();
-
-    // Chatbot
-    const widget       = document.getElementById("chatbotWidget");
-    const chatInput    = document.getElementById("chatInput");
-    const chatMessages = document.getElementById("chatMessages");
-    const chatIntro    = document.getElementById("chatIntro");
-    const sendBtn      = document.getElementById("sendBtn");
-    let history = [];
-
-    function toggleChat() { widget.classList.toggle("active"); }
-
-    function addUserBubble(text) {
-      chatIntro.classList.add("hidden");
-      const row = document.createElement("div");
-      row.className = "msg-row user";
-      row.innerHTML = `<div class="msg user">${text}</div>`;
-      chatMessages.appendChild(row);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function addBotBubble(html) {
-      const row = document.createElement("div");
-      row.className = "msg-row bot";
-      row.innerHTML = `<div class="msg bot"><div class="bot-rich">${html}</div></div>`;
-      chatMessages.appendChild(row);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    async function fetchAI(text) {
-      const typing = document.createElement("div");
-      typing.className = "typing";
-      typing.innerHTML = "<span></span><span></span><span></span>";
-      chatMessages.appendChild(typing);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, history }),
-        });
-        const data = await res.json();
-        typing.remove();
-        addBotBubble(data.answer || "Sorry, an error occurred.");
-        history.push({ role: "user", content: text }, { role: "assistant", content: data.answer });
-      } catch (e) {
-        typing.remove();
-        addBotBubble("Failed to connect to the server.");
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unified Access Environment</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f3f6fb;
+        color: #23314f;
+        overflow: hidden;
+        height: 100vh;
+      }
 
-    sendBtn.onclick = () => {
-      const text = chatInput.value.trim();
-      if (!text) return;
-      chatInput.value = "";
-      addUserBubble(text);
-      fetchAI(text);
-    };
+      .topbar {
+        height: 52px;
+        background: linear-gradient(90deg, #1a4fa0, #3a9de0);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        color: white;
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .grid-icon {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        width: 18px;
+        cursor: pointer;
+      }
+      .grid-icon span {
+        width: 7px;
+        height: 7px;
+        background: white;
+        border-radius: 1px;
+        display: block;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .notif-icon {
+        font-size: 19px;
+        cursor: pointer;
+        opacity: 0.9;
+      }
+      .top-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #c8d8f0;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
 
-    chatInput.onkeydown = (e) => { if (e.key === "Enter") sendBtn.click(); };
+      .layout {
+        display: grid;
+        grid-template-columns: 220px 1fr 360px;
+        height: calc(100vh - 52px);
+      }
 
-    document.querySelectorAll(".quick-item").forEach(item => {
-      item.onclick = () => {
-        const val = item.getAttribute("data-val");
-        addUserBubble(val);
-        fetchAI(val);
+      .sidebar {
+        background: #fff;
+        border-right: 1px solid #dde4f0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .sidebar-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 16px 16px;
+        border-bottom: 1px solid #edf1f7;
+      }
+      .profile-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #c8d8f0;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+      }
+      .profile-name {
+        font-size: 12px;
+        color: #7a88a0;
+        margin-bottom: 2px;
+      }
+      .profile-fullname {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a2744;
+      }
+      .sidebar-nav {
+        padding: 10px 0;
+        flex: 1;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px;
+        font-size: 14px;
+        color: #5d6780;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: 0.15s;
+      }
+      .nav-item:hover {
+        background: #f5f7fc;
+        color: #1a4fa0;
+      }
+      .nav-item.active {
+        color: #1a4fa0;
+        font-weight: 600;
+        background: #f0f5ff;
+        border-left-color: #1a4fa0;
+      }
+      .nav-icon {
+        font-size: 18px;
+        width: 22px;
+        text-align: center;
+        opacity: 0.8;
+      }
+
+      .main {
+        overflow-y: auto;
+        background: #f3f6fb;
+      }
+      .main-header {
+        padding: 18px 28px 14px;
+        border-bottom: 1px solid #dde4f0;
+        background: #fff;
+      }
+      .main-title {
+        font-size: 19px;
+        font-weight: 700;
+        color: #1a2744;
+        margin-bottom: 3px;
+      }
+      .main-subtitle {
+        font-size: 13px;
+        color: #7a88a0;
+      }
+      .main-body {
+        padding: 22px 28px;
+      }
+      .section-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8a96ad;
+        margin-bottom: 16px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .cards.two-col {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #e4eaf4;
+        box-shadow: 0 2px 8px rgba(26, 79, 160, 0.05);
+        cursor: pointer;
+        transition: 0.2s ease;
+        min-height: 90px;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26, 79, 160, 0.1);
+        border-color: #c5d6f0;
+      }
+      .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        flex-shrink: 0;
+        background: #eef3ff;
+      }
+      .card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1a2744;
+        margin-bottom: 4px;
+      }
+      .card-desc {
+        font-size: 12px;
+        color: #7a88a0;
+        line-height: 1.4;
+      }
+
+      .right-panel {
+        background: #fff;
+        border-left: 1px solid #dde4f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .news-section {
+        padding: 16px 18px;
+        border-bottom: 1px solid #edf1f7;
+      }
+      .panel-section-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #8a96ad;
+        margin-bottom: 12px;
+      }
+      .news-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .news-arrow {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #1a4fa0;
+        font-weight: 700;
+        padding: 2px 6px;
+      }
+      .news-slide-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a4fa0;
+        text-align: center;
+        flex: 1;
+        padding: 0 4px;
+      }
+      .news-body {
+        font-size: 13px;
+        line-height: 1.65;
+        color: #49566f;
+        max-height: 160px;
+        overflow: hidden;
+      }
+      .dots {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #c9d3e4;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .dot.active {
+        background: #1a4fa0;
+      }
+      .schedule-section {
+        padding: 16px 18px;
+        flex: 1;
+        overflow-y: auto;
+      }
+      .schedule-year {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .schedule-year-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a4fa0;
+      }
+      .week-label {
+        text-align: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a4fa0;
+        margin-bottom: 14px;
+      }
+      .schedule-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .schedule-item {
+        border-top: 1px solid #edf1f7;
+        padding-top: 12px;
+      }
+      .schedule-item-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1a2744;
+        margin-bottom: 4px;
+        line-height: 1.4;
+      }
+      .schedule-item-date {
+        font-size: 12px;
+        color: #8a96ad;
+      }
+
+      /* ═══════════════════════════════════════════
+         FLOATING CHATBOT (BLUE THEME)
+      ═══════════════════════════════════════════ */
+
+      .chatbot-launcher {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #1a4fa0, #3a9de0);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(26, 79, 160, 0.4);
+        z-index: 1000;
+        transition: transform 0.2s ease;
+      }
+      .chatbot-launcher:hover {
+        transform: scale(1.05);
+      }
+      .chatbot-launcher.active {
+        display: none;
+      }
+      .launcher-icon {
+        font-size: 30px;
+      }
+
+      /* ── Normal widget size ── */
+      .chatbot-widget {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        width: 380px;
+        height: 600px;
+        max-height: 85vh;
+        background: #fff;
+        border-radius: 24px;
+        display: none;
+        flex-direction: column;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+        z-index: 1001;
+        overflow: hidden;
+        border: 1px solid #e4eaf4;
+        /* smooth transition when toggling extended mode */
+        transition: width 0.3s ease, height 0.3s ease,
+                    right 0.3s ease, bottom 0.3s ease,
+                    border-radius 0.3s ease;
+      }
+      .chatbot-widget.active {
+        display: flex;
+        animation: slideIn 0.3s ease;
+      }
+
+      /* ── Extended / wide mode ── */
+      .chatbot-widget.extended {
+        width: 700px;                   /* wider bubble */
+        height: 82vh;                   /* taller too */
+        right: calc(50% - 350px);      /* horizontally centered on screen */
+        bottom: 9vh;                    /* lifted slightly from bottom */
+        border-radius: 20px;
+      }
+
+      /* extend button turns blue when active */
+      .chat-control-btn.extend-on {
+        color: #1a4fa0;
+        font-weight: 700;
+      }
+
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .chatbot-header {
+        background: #fff;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f0f0f0;
+        flex-shrink: 0; /* never shrink — always visible */
+      }
+      .chat-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .chat-avatar-wrap {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #1a4fa0, #3a9de0);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .chat-brand-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a2744;
+      }
+      .chat-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .chat-control-btn {
+        border: none;
+        background: none;
+        font-size: 20px;
+        color: #8a96ad;
+        cursor: pointer;
+        transition: color 0.2s;
+        line-height: 1;
+        padding: 2px 4px;
+      }
+      .chat-control-btn:hover {
+        color: #1a4fa0;
+      }
+
+      .chatbot-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #fff;
+      }
+      .messages {
+        padding: 16px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .chat-center {
+        padding: 20px;
+        text-align: center;
+      }
+      .chat-date {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 10px;
+      }
+      .chat-welcome {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a2744;
+        margin-bottom: 16px;
+      }
+      .quick-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .quick-item {
+        background: #f0f5ff;
+        border: 1px solid #d0dff5;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        color: #1a4fa0;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .quick-item:hover {
+        background: #e6f0ff;
+        border-color: #1a4fa0;
+        transform: translateX(5px);
+      }
+
+      .msg-row {
+        display: flex;
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      .msg-row.user {
+        justify-content: flex-end;
+      }
+      .msg.user {
+        background: linear-gradient(135deg, #1a4fa0, #3a9de0);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 16px 16px 4px 16px;
+        font-size: 13px;
+        max-width: 80%;
+        box-shadow: 0 2px 8px rgba(26, 79, 160, 0.2);
+      }
+      .msg.bot {
+        background: #f1f3f6;
+        color: #23314f;
+        padding: 10px 14px;
+        border-radius: 16px 16px 16px 4px;
+        font-size: 13px;
+        max-width: 88%;           /* slightly wider than before */
+        border: 1px solid #e4eaf4;
+        min-width: 0;             /* allows it to shrink properly */
+        overflow: hidden;         /* clips anything that would escape */
+      }
+
+      /* ── bot-rich: all markdown output lives here ── */
+      .bot-rich {
+        overflow: hidden;         /* outer clip */
+      }
+
+      /* ── TABLES: scrollable, never overflow the bubble ── */
+      .bot-rich .tbl-wrap {
+        overflow-x: auto;                     /* scroll horizontally when table is wide */
+        -webkit-overflow-scrolling: touch;    /* smooth scroll on iOS */
+        margin-top: 6px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        border: 1px solid #dde4f0;
+      }
+      .bot-rich table {
+        border-collapse: collapse;
+        font-size: 12px;
+        white-space: nowrap;                  /* keeps each cell on one line, enabling scroll */
+        min-width: 100%;                      /* at least fills the bubble; grows wider if needed */
+      }
+      .bot-rich th {
+        background: #eef3ff;
+        color: #1a4fa0;
+        padding: 6px 10px;
+        border: 1px solid #dde4f0;
+        font-weight: 600;
+        text-align: left;
+        position: sticky;                     /* header row stays visible when scrolling down */
+        top: 0;
+      }
+      .bot-rich td {
+        padding: 5px 10px;
+        border: 1px solid #edf1f7;
+        color: #49566f;
+        vertical-align: top;
+        white-space: normal;                  /* cell text can wrap — only column headers are nowrap */
+      }
+      .bot-rich tr:nth-child(even) td {
+        background: #f8faff;                  /* alternating row shading */
+      }
+
+      /* ── LISTS: bullets stay inside the bubble ── */
+      .msg.bot ul,
+      .msg.bot ol {
+        padding-left: 16px;
+        margin: 6px 0;
+      }
+      .msg.bot li {
+        margin-bottom: 4px;
+        line-height: 1.5;
+      }
+
+      /* ── PARAGRAPHS ── */
+      .msg.bot p {
+        margin-bottom: 6px;
+        line-height: 1.55;
+      }
+      .msg.bot p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── INLINE STYLES ── */
+      .msg.bot strong,
+      .bot-rich strong {
+        color: #1a4fa0;
+      }
+      .msg.bot h3,
+      .msg.bot h4 {
+        color: #1a2744;
+        margin: 8px 0 4px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      /* ── SOURCE BADGE shown after each bot answer ── */
+      .source-badge {
+        display: inline-block;
+        font-size: 11px;
+        color: #7a88a0;
+        background: #f0f5ff;
+        border: 1px solid #d0dff5;
+        border-radius: 8px;
+        padding: 2px 8px;
+        margin-top: 6px;
+        margin-right: 4px;
+      }
+
+      .input-area {
+        padding: 16px;
+        border-top: 1px solid #f0f0f0;
+        background: #fff;
+        flex-shrink: 0;
+      }
+      .input-row {
+        display: flex;
+        align-items: center;
+        background: #f3f6fb;
+        border-radius: 24px;
+        padding: 4px 4px 4px 16px;
+        border: 1px solid #dde4f0;
+      }
+      .chat-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 13px;
+        color: #23314f;
+      }
+      .send-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 50%;
+        background: #1a4fa0;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .send-btn:hover {
+        background: #143d7a;
+      }
+      .send-btn svg {
+        width: 16px;
+        fill: #fff;
+      }
+
+      .typing {
+        display: flex;
+        gap: 4px;
+        padding: 10px;
+      }
+      .typing span {
+        width: 6px;
+        height: 6px;
+        background: #1a4fa0;
+        opacity: 0.4;
+        border-radius: 50%;
+        animation: bounce 1.2s infinite;
+      }
+      .typing span:nth-child(2) { animation-delay: 0.2s; }
+      .typing span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes bounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30%           { transform: translateY(-4px); }
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 900px) {
+        .layout { grid-template-columns: 1fr; }
+        .sidebar, .right-panel { display: none; }
+        /* on mobile: both normal and extended go full-screen */
+        .chatbot-widget,
+        .chatbot-widget.extended {
+          width: 100%;
+          height: 100%;
+          right: 0;
+          bottom: 0;
+          border-radius: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="grid-icon">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        Unified Access Environment
+      </div>
+      <div class="topbar-right">
+        <div class="notif-icon">🔔</div>
+        <div class="top-avatar">👤</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-profile">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name">Munkh-Bayasgalan</div>
+            <div class="profile-fullname">BAT-AMGALAN</div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-item active">
+            <span class="nav-icon">🏠</span> Home
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">👤</span> Personal Information
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">🕐</span> Login History
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">🛡️</span> Data Permissions
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">📋</span> Data Access History
+          </div>
+          <div class="nav-item"><span class="nav-icon">📄</span> Contracts</div>
+          <div class="nav-item"><span class="nav-icon">💬</span> FAQ</div>
+          <div class="nav-item">
+            <span class="nav-icon">📖</span> User Guide
+          </div>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div class="main-header">
+          <div class="main-title">Information Technology</div>
+          <div class="main-subtitle">
+            School of Information Technology and Electronics
+          </div>
+        </div>
+        <div class="main-body">
+          <div class="section-label">Academic & Research</div>
+          <div class="cards">
+            <div class="card">
+              <div class="card-icon" style="background: #eef3ff">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                  <rect x="2"  y="2"  width="16" height="16" rx="3" fill="#4a7ee0" />
+                  <rect x="22" y="2"  width="16" height="16" rx="3" fill="#7ab0f5" />
+                  <rect x="2"  y="22" width="16" height="16" rx="3" fill="#7ab0f5" />
+                  <rect x="22" y="22" width="16" height="16" rx="3" fill="#4a7ee0" />
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">SISi</div>
+                <div class="card-desc">Student Information & Learning Management System</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-icon" style="background: #e8f4ff">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                  <rect x="4"  y="6" width="10" height="28" rx="2" fill="#3a9de0" />
+                  <rect x="16" y="6" width="10" height="28" rx="2" fill="#5bb3f0" />
+                  <rect x="28" y="6" width="8"  height="28" rx="2" fill="#3a9de0" />
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Koha</div>
+                <div class="card-desc">Library Information System</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-icon" style="background: #fff7e6">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                  <rect x="4"  y="8"  width="12" height="24" rx="2" fill="#f5a623" />
+                  <rect x="18" y="4"  width="12" height="28" rx="2" fill="#e8920a" />
+                  <rect x="10" y="12" width="12" height="20" rx="2" fill="#fbbf24" />
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Koha</div>
+                <div class="card-desc">Digital Library</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-icon" style="background:#f4f4f4;font-size:13px;font-weight:900;color:#222;border-radius:8px;letter-spacing:-0.5px;">
+                edX
+              </div>
+              <div>
+                <div class="card-title">edX</div>
+                <div class="card-desc">Online Learning Platform</div>
+              </div>
+            </div>
+          </div>
+          <div class="section-label">Institutional Services</div>
+          <div class="cards two-col">
+            <div class="card">
+              <div class="card-icon" style="background: #fff3ec">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                  <circle cx="14" cy="14" r="8" fill="#f97316" />
+                  <circle cx="26" cy="14" r="8" fill="#fbbf24" />
+                  <circle cx="14" cy="26" r="8" fill="#ef4444" />
+                  <circle cx="26" cy="26" r="8" fill="#f97316" />
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">NUM Career</div>
+                <div class="card-desc">Career Development Support Services</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-icon" style="background: #f0f4ff">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+                  <path d="M20 4C20 4 34 13 34 24C34 31 27 36 20 36C13 36 6 31 6 24C6 13 20 4 20 4Z" fill="#6264A7" />
+                  <path d="M20 4C20 4 6 13 6 24C6 31 13 36 20 36" fill="#464775" />
+                  <circle cx="20" cy="23" r="7" fill="white" opacity="0.2" />
+                </svg>
+              </div>
+              <div>
+                <div class="card-title">Microsoft 365</div>
+                <div class="card-desc">Outlook, OneDrive, Teams, Calendar, Planner ...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="right-panel">
+        <div class="news-section">
+          <div class="panel-section-title">Announcements</div>
+          <div class="news-nav">
+            <button class="news-arrow" id="newsPrev">&#8249;</button>
+            <div class="news-slide-title" id="newsTitle"></div>
+            <button class="news-arrow" id="newsNext">&#8250;</button>
+          </div>
+          <div class="news-body" id="newsBody"></div>
+          <div class="dots" id="newsDots"></div>
+        </div>
+        <div class="schedule-section">
+          <div class="panel-section-title">Academic Year Schedule</div>
+          <div class="schedule-year">
+            <div class="schedule-year-label">2025–2026, Spring Semester</div>
+            <div>📅</div>
+          </div>
+          <div class="week-label">∧ Week 8</div>
+          <div class="schedule-list">
+            <div class="schedule-item">
+              <div class="schedule-item-title">Apply for Dual / Combined Degree Program</div>
+              <div class="schedule-item-date">Mar 01 – Mar 31</div>
+            </div>
+            <div class="schedule-item">
+              <div class="schedule-item-title">Submit Graduation Request</div>
+              <div class="schedule-item-date">Mar 09 – Apr 10</div>
+            </div>
+            <div class="schedule-item">
+              <div class="schedule-item-title">Midterm Examinations</div>
+              <div class="schedule-item-date">Mar 17 – Mar 28</div>
+            </div>
+            <div class="schedule-item">
+              <div class="schedule-item-title">Final Exam Registration</div>
+              <div class="schedule-item-date">Mar 20 – Apr 05</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Chatbot Launcher -->
+    <div class="chatbot-launcher" id="chatLauncher" onclick="toggleChat()">
+      <span class="launcher-icon">🤖</span>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget" id="chatbotWidget">
+      <div class="chatbot-header">
+        <div class="chat-brand">
+          <div class="chat-avatar-wrap">🤖</div>
+          <div class="chat-brand-name">NUM Assistant</div>
+        </div>
+        <div class="chat-controls">
+          <!-- Extend button: toggles wide/centered mode -->
+          <button
+            class="chat-control-btn"
+            id="extendBtn"
+            title="Extended mode"
+            onclick="toggleExtended()"
+          >⤢</button>
+          <!-- New conversation -->
+          <button
+            class="chat-control-btn"
+            id="newChat"
+            title="New conversation"
+          >↺</button>
+          <!-- Close -->
+          <button class="chat-control-btn" onclick="toggleChat()" title="Close">×</button>
+        </div>
+      </div>
+
+      <div class="chatbot-body">
+        <div id="chatIntro" class="chat-center">
+          <div class="chat-date" id="todayDate"></div>
+          <div class="chat-welcome">Hello there 👋</div>
+          <div class="quick-list">
+            <button class="quick-item" data-val="W grade">W Grade</button>
+            <button class="quick-item" data-val="R grade">R Grade</button>
+            <button class="quick-item" data-val="G grade">G Grade</button>
+            <button class="quick-item" data-val="Calculate GPA">Calculate GPA</button>
+            <button class="quick-item" data-val="Leave of absence / Withdrawal">
+              Leave of Absence / Withdrawal
+            </button>
+          </div>
+        </div>
+        <div class="messages" id="chatMessages"></div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-row">
+          <input
+            type="text"
+            id="chatInput"
+            class="chat-input"
+            placeholder="Type your question..."
+          />
+          <button class="send-btn" id="sendBtn">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── News Slider ───────────────────────────────────────
+      const news = [
+        { title: "Assignment",    body: 'A new assignment has been added to your "Information Security" course.' },
+        { title: "Midterm Exams", body: "Midterm examinations will be held from Mar 17 to Mar 28." },
+        { title: "Notice",        body: "The deadline to apply for a dual degree program is Mar 31." },
+      ];
+      let newsIdx = 0;
+      function renderNews() {
+        document.getElementById("newsTitle").textContent = news[newsIdx].title;
+        document.getElementById("newsBody").textContent  = news[newsIdx].body;
+        const dots = document.getElementById("newsDots");
+        dots.innerHTML = news
+          .map((_, i) => `<div class="dot ${i === newsIdx ? "active" : ""}" data-i="${i}"></div>`)
+          .join("");
+        dots.querySelectorAll(".dot").forEach((d) =>
+          d.addEventListener("click", () => { newsIdx = +d.dataset.i; renderNews(); })
+        );
+      }
+      document.getElementById("newsPrev").addEventListener("click", () => {
+        newsIdx = (newsIdx - 1 + news.length) % news.length; renderNews();
+      });
+      document.getElementById("newsNext").addEventListener("click", () => {
+        newsIdx = (newsIdx + 1) % news.length; renderNews();
+      });
+      renderNews();
+
+      // ── Chatbot core ──────────────────────────────────────
+      const widget       = document.getElementById("chatbotWidget");
+      const chatInput    = document.getElementById("chatInput");
+      const chatMessages = document.getElementById("chatMessages");
+      const chatIntro    = document.getElementById("chatIntro");
+      const sendBtn      = document.getElementById("sendBtn");
+      const extendBtn    = document.getElementById("extendBtn");
+      let history = [];
+
+      // Open / close the widget
+      function toggleChat() {
+        widget.classList.toggle("active");
+        document.getElementById("chatLauncher").classList.toggle("active");
+      }
+
+      // Toggle extended (wide, centered) mode
+      function toggleExtended() {
+        const isExtended = widget.classList.toggle("extended");
+        extendBtn.textContent = isExtended ? "⤡" : "⤢";         // swap icon
+        extendBtn.classList.toggle("extend-on", isExtended);      // blue tint when active
+        extendBtn.title = isExtended ? "Normal mode" : "Extended mode";
+      }
+
+      // Wrap tables in a scrollable div so they never overflow the bubble
+      function wrapTables(html) {
+        // Replace every <table>...</table> with <div class="tbl-wrap"><table>...</table></div>
+        return html.replace(/<table[\s\S]*?<\/table>/gi, (match) => {
+          return `<div class="tbl-wrap">${match}</div>`;
+        });
+      }
+
+      function addUserBubble(text) {
+        chatIntro.classList.add("hidden");
+        const row = document.createElement("div");
+        row.className = "msg-row user";
+        row.innerHTML = `<div class="msg user">${text}</div>`;
+        chatMessages.appendChild(row);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function addBotBubble(html, sources) {
+        const row = document.createElement("div");
+        row.className = "msg-row bot";
+        // Wrap tables before injecting into the DOM
+        const safeHtml = wrapTables(html);
+        // Build source badges if the server returned source names
+        let sourceBadges = "";
+        if (sources && sources.length) {
+          sourceBadges = sources
+            .map((s) => `<span class="source-badge">📄 ${s}</span>`)
+            .join("");
+          sourceBadges = `<div style="margin-top:6px">${sourceBadges}</div>`;
+        }
+        row.innerHTML = `<div class="msg bot"><div class="bot-rich">${safeHtml}</div>${sourceBadges}</div>`;
+        chatMessages.appendChild(row);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      async function fetchAI(text) {
+        // Show typing indicator
+        const typing = document.createElement("div");
+        typing.className = "typing";
+        typing.innerHTML = "<span></span><span></span><span></span>";
+        chatMessages.appendChild(typing);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text, history }),
+          });
+          const data = await res.json();
+          typing.remove();
+          if (data.error) {
+            addBotBubble(`<span style="color:#e24b4a">${data.error}</span>`);
+          } else {
+            addBotBubble(data.answer || "Sorry, an error occurred.", data.sources);
+            history.push(
+              { role: "user",      content: text },
+              { role: "assistant", content: data.answer }
+            );
+          }
+        } catch (e) {
+          typing.remove();
+          addBotBubble("Failed to connect to the server.");
+        }
+      }
+
+      sendBtn.onclick = () => {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        chatInput.value = "";
+        addUserBubble(text);
+        fetchAI(text);
       };
-    });
 
-    document.getElementById("newChat").onclick = () => {
-      chatMessages.innerHTML = "";
-      chatIntro.classList.remove("hidden");
-      history = [];
-    };
+      chatInput.onkeydown = (e) => {
+        if (e.key === "Enter") sendBtn.click();
+      };
 
-    document.getElementById("todayDate").textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  </script>
-</body>
+      document.querySelectorAll(".quick-item").forEach((item) => {
+        item.onclick = () => {
+          const val = item.getAttribute("data-val");
+          addUserBubble(val);
+          fetchAI(val);
+        };
+      });
+
+      document.getElementById("newChat").onclick = () => {
+        chatMessages.innerHTML = "";
+        chatIntro.classList.remove("hidden");
+        history = [];
+      };
+
+      document.getElementById("todayDate").textContent = new Date().toLocaleDateString("en-US", {
+        year: "numeric", month: "long", day: "numeric",
+      });
+    </script>
+  </body>
 </html>
